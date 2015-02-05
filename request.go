@@ -1,0 +1,89 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+)
+
+type Streams struct {
+	Stream []struct {
+		// Id   int64  `json:"_id"`
+		Game    string `json:"game"`
+		Viewers int    `json:"viewers"`
+		// CreatedAt string `json:"created_at"`
+		// Links     struct {
+		// Self string `json:"self"`
+		// } `json:"_links"`
+		// Preview struct {
+		// Small    string `json:"small"`
+		// Medium   string `json:"medium"`
+		// Large    string `json:"large"`
+		// Template string `json:"template"`
+		// } `json:"preview"`
+		Channel struct {
+			// Links struct {
+			// Self          string `json:"self"`
+			// Follows       string `json:"follows"`
+			// Commercial    string `json:"commercial"`
+			// StreamKey     string `json:"stream_key"`
+			// Chat          string `json:"chat"`
+			// Features      string `json:"features"`
+			// Subscriptions string `json:"subscriptions"`
+			// Editors       string `json:"editors"`
+			// Videos        string `json:"videos"`
+			// Teams         string `json:"teams"`
+			// } `json:"_links"`
+			// Background                   interface{} `json:"background"`
+			// Banner                       interface{} `json:"banner"`
+			// BroadcasterLanguage          string      `json:"broadcaster_language"`
+			DisplayName string `json:"display_name"`
+			Game        string `json:"game"`
+			Logo        string `json:"logo"`
+			// Mature                       bool        `json:"mature"`
+			Status string `json:"status"`
+			// Partner                      bool        `json:"partner"`
+			Url string `json:"url"`
+			// VideoBanner                  string      `json:"video_banner"`
+			// Id                           int         `json:"_id"`
+			// Name                         string      `json:"name"`
+			// CreatedAt                    string      `json:"created_at"`
+			// UpdatedAt                    string      `json:"updated_at"`
+			// Delay                        int         `json:"delay"`
+			// Followers                    int         `json:"followers"`
+			// ProfileBanner                string      `json:"profile_banner"`
+			// ProfileBannerBackgroundColor interface{} `json:"profile_banner_background_color"`
+			// Views                        int         `json:"views"`
+			// Language                     string      `json:"language"`
+		} `json:"channel"`
+	} `json:"streams"`
+	// Total int `json:"_total"`
+	// Links struct {
+	// Self     string `json:"self"`
+	// Next     string `json:"next"`
+	// Featured string `json:"featured"`
+	// Summary  string `json:"summary"`
+	// Followed string `json:"followed"`
+	// } `json:"_links"`
+}
+
+func getTopStreams() *Streams {
+	res, err := http.Get("https://api.twitch.tv/kraken/streams")
+	if err != nil {
+		log.Println("no response from api")
+		return nil
+	}
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Fatal("could not read response")
+	}
+	dat := new(Streams)
+	if err := json.Unmarshal(body, dat); err != nil {
+		log.Fatal("could not read json")
+	}
+
+	fmt.Println(dat)
+	return dat
+}
