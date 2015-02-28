@@ -40,8 +40,8 @@ type Streams struct {
 			// Banner                       interface{} `json:"banner"`
 			// BroadcasterLanguage          string      `json:"broadcaster_language"`
 			DisplayName string `json:"display_name"`
-			Game        string `json:"game"`
-			Logo        string `json:"logo"`
+			// Game        string `json:"game"`
+			Logo string `json:"logo"`
 			// Mature                       bool        `json:"mature"`
 			Status string `json:"status"`
 			// Partner                      bool        `json:"partner"`
@@ -83,7 +83,15 @@ func getTopStreams() *Streams {
 	if err := json.Unmarshal(body, dat); err != nil {
 		log.Fatal("could not read json")
 	}
-
-	fmt.Println(dat)
+	prettyPrint(dat)
 	return dat
+}
+
+func prettyPrint(streams *Streams) {
+	for _, stream := range streams.Stream {
+		fmt.Println("=== STREAM ===")
+		fmt.Println(stream.Channel.DisplayName)
+		fmt.Println(stream.Game)
+		fmt.Println(stream.Viewers)
+	}
 }
