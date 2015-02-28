@@ -9,6 +9,19 @@ import (
 	"net/http"
 )
 
+type Data struct {
+	Display_name string
+	Game         string
+	Viewers      int
+	Logo         string
+	Status       string
+	Url          string
+}
+
+type Wrapper struct {
+	Dat []Data
+}
+
 type Streams struct {
 	Stream []struct {
 		// Id   int64  `json:"_id"`
@@ -85,7 +98,7 @@ func getTopStreams() *Streams {
 		log.Fatal("could not read json")
 	}
 	// prettyPrint(dat)
-	fmt.Println(returnJSON(dat))
+	// fmt.Println(returnJSON(dat))
 	return dat
 }
 
@@ -101,8 +114,21 @@ func JSONMarshal(v interface{}, safeEncoding bool) ([]byte, error) {
 }
 
 func returnJSON(streams *Streams) string {
-	out, err := JSONMarshal(streams, true)
+	d := make([]Data, 25)
+	wrapper := &Wrapper{Dat: d}
+
+	for i := 0; i < 25; i++ {
+		d[i].Display_name = streams.Stream[i].Channel.DisplayName
+		d[i].Game = streams.Stream[i].Game
+		d[i].Viewers = streams.Stream[i].Viewers
+		d[i].Logo = streams.Stream[i].Channel.Logo
+		d[i].Status = streams.Stream[i].Channel.Status
+		d[i].Url = streams.Stream[i].Channel.Url
+	}
+
+	out, err := JSONMarshal(&wrapper, true)
 	if err != nil {
+		// TODO: do more
 		return "error"
 	}
 	return string(out)
