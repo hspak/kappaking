@@ -19,10 +19,11 @@ type Data struct {
 }
 
 type Wrapper struct {
-	Dat []Data
+	Streams []Data
 }
 
 type Streams struct {
+	// {{{
 	Stream []struct {
 		// Id   int64  `json:"_id"`
 		Game    string `json:"game"`
@@ -81,6 +82,7 @@ type Streams struct {
 	// Summary  string `json:"summary"`
 	// Followed string `json:"followed"`
 	// } `json:"_links"`
+	// }}}
 }
 
 func getTopStreams() *Streams {
@@ -98,7 +100,7 @@ func getTopStreams() *Streams {
 		log.Fatal("could not read json")
 	}
 	// prettyPrint(dat)
-	// fmt.Println(returnJSON(dat))
+	fmt.Println(returnJSON(dat))
 	return dat
 }
 
@@ -115,7 +117,7 @@ func JSONMarshal(v interface{}, safeEncoding bool) ([]byte, error) {
 
 func returnJSON(streams *Streams) string {
 	d := make([]Data, 25)
-	wrapper := &Wrapper{Dat: d}
+	wrapper := &Wrapper{Stream: d}
 
 	for i := 0; i < 25; i++ {
 		d[i].Display_name = streams.Stream[i].Channel.DisplayName
