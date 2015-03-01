@@ -34,7 +34,10 @@ func launchBot(streamList chan string) {
 		log.Fatal(err)
 	}
 
-	con.Join("#ezjijy")
+	// temp to test
+	HARDCODE := "dotapit"
+
+	con.Join("#" + HARDCODE)
 	// go func() {
 	// for name := range streamList {
 	// stream := strings.ToLower(name)
@@ -51,13 +54,19 @@ func launchBot(streamList chan string) {
 	KPM = make(map[string]int)
 
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
-		name := strings.Split(e.Host, ".")[0]
 		count := strings.Count(e.Message(), "Kappa")
+		if count == 0 {
+			fmt.Println("no kappas...")
+			return
+		}
 
+		// name := strings.Split(e.Host, ".")[0]
+		name := strings.ToLower(HARDCODE)
 		if _, ok := KPM[name]; !ok {
 			KPM[name] = 0
 		}
 
+		// fmt.Println(e.Connection)
 		fmt.Println("Kappa from", name, "=", count)
 		kappaCounter <- KappaData{Name: name, Count: count}
 

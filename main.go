@@ -28,6 +28,6 @@ func main() {
 	streamList := make(chan string, 25)
 
 	updateDB(db, streamList)
-	// serveWeb(db)
+	go serveWeb(db)
 	launchBot(streamList)
 }

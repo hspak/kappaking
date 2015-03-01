@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -17,6 +18,10 @@ var CacheDB Cache
 
 func queryDB(db *sql.DB) ([]Data, error) {
 	if CacheDB.Fresh {
+		for i, dat := range CacheDB.Data {
+			fmt.Println("UPDATE", dat.DisplayName, "=", KPM[dat.DisplayName])
+			CacheDB.Data[i].Kappa = KPM[dat.DisplayName]
+		}
 		fmt.Println("return cached")
 		return CacheDB.Data, nil
 	}
@@ -46,7 +51,7 @@ func queryDB(db *sql.DB) ([]Data, error) {
 		dat[i].Url = url
 		dat[i].Logo = logo
 		dat[i].Viewers = viewers
-		dat[i].Kappa = kappa
+		dat[i].Kappa = KPM[name]
 		i++
 	}
 	CacheDB.Fresh = true
@@ -85,6 +90,11 @@ func updateDB(db *sql.DB, streamList chan string) error {
 }
 
 func insertDB(db *sql.DB, streams *Streams) error {
+	// no response from Twtich, no update
+	if streams == nil {
+		return nil
+	}
+
 	for _, stream := range streams.Stream {
 		tx, err := db.Begin()
 		if err != nil {
@@ -110,7 +120,7 @@ func insertDB(db *sql.DB, streams *Streams) error {
 				newvals(name, viewers, game, logo, status, url, kappa)
 				VALUES($3, $2, $1, $4, $5, $6, $7);`,
 			stream.Game, stream.Viewers,
-			stream.Channel.DisplayName, stream.Channel.Logo,
+			strings.ToLower(stream.Channel.DisplayName), stream.Channel.Logo,
 			stream.Channel.Status, stream.Channel.Url, 1)
 		if err != nil {
 			return err

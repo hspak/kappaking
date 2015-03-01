@@ -87,21 +87,26 @@ type Streams struct {
 	// }}}
 }
 
+// It is OK if this returns nil. It will only prevent the DB from updating
 func getTopStreams() *Streams {
 	res, err := http.Get("https://api.twitch.tv/kraken/streams")
 	if err != nil {
-		// TODO: do proper handling
-		log.Println("no response from api")
+		log.Println("info: no response from api")
 		return nil
 	}
+
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Fatal("could not read response")
+		log.Println("error: could not read api response")
+		return nil
 	}
+
 	dat := new(Streams)
 	if err := json.Unmarshal(body, dat); err != nil {
-		log.Fatal("could not read json")
+		log.Println("could not parse json")
+		return nil
 	}
+
 	return dat
 }
 

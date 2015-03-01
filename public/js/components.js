@@ -64,7 +64,7 @@ var ChannelDynamic = React.createClass({
       <div className="channelDynamic">
         <div className="gameTitle">Game: {this.props.game}</div>
         <div className="viewerCount">Viewer: {this.props.viewers}</div>
-        <div className="kappaCount">Kappa: {this.props.kappa}</div>
+        <div className="kappaCount">KPM: {this.props.kappa}</div>
       </div>
     );
   }
