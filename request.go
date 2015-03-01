@@ -117,7 +117,9 @@ func JSONMarshal(v interface{}, safeEncoding bool) ([]byte, error) {
 }
 
 func returnJSON() string {
+	// TODO: I should decouple this and not go to twitch every call
 	streams := getTopStreams()
+
 	d := make([]Data, 25)
 	wrapper := &Wrapper{Streams: d}
 
