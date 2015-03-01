@@ -1,8 +1,5 @@
-1. Grab top 20 twitch.tv channels
-    - will periodically update - every 15 minutes?
-        - channels will be filtered by the view count
-    - irc bot will join/part channels as they update
-2. Start looking at chat for Kappa's
-    - Store database for each stream the Kappa count
-3. Update the webpage with updated Kappa counts
-    - communicate with websockets? (maybe just poll for now)
+ 1. Have request.go be a middleman between postgres and twitch
+      - Update every 5 seconds
+ 2. Start setting up the bot to count Kappa's
+ 3. ...
+ 4. PROFIT
