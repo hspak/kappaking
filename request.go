@@ -101,7 +101,7 @@ func getTopStreams() *Streams {
 		log.Fatal("could not read json")
 	}
 	// prettyPrint(dat)
-	fmt.Println(returnJSON(dat))
+	// fmt.Println(returnJSON(dat))
 	return dat
 }
 
@@ -116,7 +116,8 @@ func JSONMarshal(v interface{}, safeEncoding bool) ([]byte, error) {
 	return b, err
 }
 
-func returnJSON(streams *Streams) string {
+func returnJSON() string {
+	streams := getTopStreams()
 	d := make([]Data, 25)
 	wrapper := &Wrapper{Streams: d}
 
