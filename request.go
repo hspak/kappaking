@@ -89,6 +89,7 @@ type Streams struct {
 func getTopStreams() *Streams {
 	res, err := http.Get("https://api.twitch.tv/kraken/streams")
 	if err != nil {
+		// TODO: do proper handling
 		log.Println("no response from api")
 		return nil
 	}
