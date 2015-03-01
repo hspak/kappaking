@@ -2,10 +2,58 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	_ "github.com/lib/pq"
 )
+
+type Cache struct {
+	Fresh bool
+	Data  []Data
+}
+
+var CacheDB Cache
+
+func queryDB(db *sql.DB) ([]Data, error) {
+	if CacheDB.Fresh {
+		fmt.Println("return cached")
+		return CacheDB.Data, nil
+	}
+
+	rows, err := db.Query(`SELECT * FROM streams ORDER BY viewers DESC LIMIT 25`)
+	if err != nil {
+		return nil, err
+	}
+
+	i := 0
+	dat := make([]Data, 25)
+	for rows.Next() {
+		var name string
+		var game string
+		var status string
+		var url string
+		var logo string
+		var viewers int
+		var kappa int
+		err = rows.Scan(&name, &viewers, &game, &logo, &status, &url, &kappa)
+		if err != nil {
+			return nil, err
+		}
+		dat[i].DisplayName = name
+		dat[i].Game = game
+		dat[i].Status = status
+		dat[i].Url = url
+		dat[i].Logo = logo
+		dat[i].Viewers = viewers
+		dat[i].Kappa = kappa
+		i++
+	}
+	CacheDB.Fresh = true
+	CacheDB.Data = dat
+	fmt.Println("return db")
+	return dat, nil
+}
 
 func updateDB(db *sql.DB) error {
 	insertDB(db, getTopStreams())
@@ -14,6 +62,7 @@ func updateDB(db *sql.DB) error {
 	go func() {
 		for _ = range ticker.C {
 			insertDB(db, getTopStreams())
+			CacheDB.Fresh = false
 		}
 	}()
 	return nil

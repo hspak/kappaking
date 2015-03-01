@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -101,8 +102,6 @@ func getTopStreams() *Streams {
 	if err := json.Unmarshal(body, dat); err != nil {
 		log.Fatal("could not read json")
 	}
-	// prettyPrint(dat)
-	// fmt.Println(returnJSON(dat))
 	return dat
 }
 
@@ -117,23 +116,13 @@ func JSONMarshal(v interface{}, safeEncoding bool) ([]byte, error) {
 	return b, err
 }
 
-func returnJSON() string {
-	// TODO: I should decouple this and not go to twitch every call
-	streams := getTopStreams()
-
-	d := make([]Data, 25)
-	wrapper := &Wrapper{Streams: d}
-
-	for i := 0; i < 25; i++ {
-		d[i].DisplayName = streams.Stream[i].Channel.DisplayName
-		d[i].Game = streams.Stream[i].Game
-		d[i].Viewers = streams.Stream[i].Viewers
-		d[i].Logo = streams.Stream[i].Channel.Logo
-		d[i].Status = streams.Stream[i].Channel.Status
-		d[i].Url = streams.Stream[i].Channel.Url
-		d[i].Kappa = 9001 // TODO: this should be pulled from the db
+func returnJSON(db *sql.DB) string {
+	d, err := queryDB(db)
+	if err != nil {
+		// TODO: do more
+		return "error"
 	}
-
+	wrapper := &Wrapper{Streams: d}
 	out, err := JSONMarshal(&wrapper, true)
 	if err != nil {
 		// TODO: do more

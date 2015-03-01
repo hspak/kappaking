@@ -1,9 +1,6 @@
 package main
 
-import (
-	"fmt"
-	"log"
-)
+import "log"
 
 func main() {
 	// go launchBot()
@@ -11,12 +8,11 @@ func main() {
 	if err != nil {
 		log.Fatal("Couldn't connect to db:postgres")
 	}
-	fmt.Println("run")
-	err = insertDB(db, getTopStreams())
-	if err != nil {
-		log.Fatal(err)
-	}
-	// updateDB()
-	fmt.Println("hm no err")
-	// serveWeb()
+
+	CacheDB.Fresh = false
+	CacheDB.Data = nil
+
+	updateDB(db)
+	// fmt.Println(returnJSON(db))
+	serveWeb(db)
 }
