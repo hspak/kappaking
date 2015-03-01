@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"strings"
+	"time"
 
 	"github.com/thoj/go-ircevent"
 )
@@ -16,7 +18,7 @@ func getPassword() string {
 	return string(pass)
 }
 
-func launchBot() {
+func launchBot(streamList chan string) {
 	con := irc.IRC("kappakingbot", "kappakingbot")
 	con.Password = getPassword()
 	err := con.Connect("irc.twitch.tv:6667")
@@ -24,16 +26,22 @@ func launchBot() {
 		log.Fatal(err)
 	}
 
+	go func() {
+		for name := range streamList {
+			stream := strings.ToLower(name)
+			fmt.Println("joining", stream)
+			con.Join("#" + stream)
+			time.Sleep(time.Second)
+		}
+	}()
+
 	// on successful connect
-	con.AddCallback("001", func(e *irc.Event) {
-		con.Join("#ezjijy")
-	})
-	con.AddCallback("JOIN", func(e *irc.Event) {
-		con.Privmsg("#ezjijy", "HI!")
-	})
+	// con.AddCallback("001", func(e *irc.Event) {
+	// con.Join("#ezjijy")
+	// con.Join("#kappaking")
+	// })
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
-		// process kappa's here
-		fmt.Println("msg", e.Message())
+		fmt.Println("msg", strings.Count(e.Message(), "Kappa"))
 	})
 	con.Loop()
 }

@@ -55,13 +55,25 @@ func queryDB(db *sql.DB) ([]Data, error) {
 	return dat, nil
 }
 
-func updateDB(db *sql.DB) error {
+func addChanList(streamList chan string) {
+	for _, dat := range CacheDB.Data {
+		fmt.Println("adding", dat.DisplayName)
+		streamList <- dat.DisplayName
+	}
+}
+
+func updateDB(db *sql.DB, streamList chan string) error {
 	insertDB(db, getTopStreams())
+	go func() {
+		time.Sleep(time.Second * 5)
+		addChanList(streamList)
+	}()
 	// poll twitch every 5 minute
 	ticker := time.NewTicker(time.Minute * 5)
 	go func() {
 		for _ = range ticker.C {
 			insertDB(db, getTopStreams())
+			addChanList(streamList)
 			CacheDB.Fresh = false
 		}
 	}()

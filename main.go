@@ -1,9 +1,13 @@
 package main
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
+
+// TODO: need a way to detect streams going offline for bot and fetching db
 
 func main() {
-	// go launchBot()
 	db, err := openDB()
 	if err != nil {
 		log.Fatal("Couldn't connect to db:postgres")
@@ -12,7 +16,10 @@ func main() {
 	CacheDB.Fresh = false
 	CacheDB.Data = nil
 
-	updateDB(db)
-	// fmt.Println(returnJSON(db))
-	serveWeb(db)
+	fmt.Println("?")
+	streamList := make(chan string, 25)
+
+	updateDB(db, streamList)
+	go serveWeb(db)
+	launchBot(streamList)
 }
