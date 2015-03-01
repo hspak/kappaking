@@ -10,12 +10,13 @@ import (
 )
 
 type Data struct {
-	Display_name string
-	Game         string
-	Viewers      int
-	Logo         string
-	Status       string
-	Url          string
+	DisplayName string `json:"display_name"`
+	Game        string `json:"game"`
+	Viewers     int    `json:"viewers"`
+	Kappa       int    `json:"kappa"`
+	Logo        string `json:"logo"`
+	Status      string `json:"status"`
+	Url         string `json:"url"`
 }
 
 type Wrapper struct {
@@ -117,15 +118,16 @@ func JSONMarshal(v interface{}, safeEncoding bool) ([]byte, error) {
 
 func returnJSON(streams *Streams) string {
 	d := make([]Data, 25)
-	wrapper := &Wrapper{Stream: d}
+	wrapper := &Wrapper{Streams: d}
 
 	for i := 0; i < 25; i++ {
-		d[i].Display_name = streams.Stream[i].Channel.DisplayName
+		d[i].DisplayName = streams.Stream[i].Channel.DisplayName
 		d[i].Game = streams.Stream[i].Game
 		d[i].Viewers = streams.Stream[i].Viewers
 		d[i].Logo = streams.Stream[i].Channel.Logo
 		d[i].Status = streams.Stream[i].Channel.Status
 		d[i].Url = streams.Stream[i].Channel.Url
+		d[i].Kappa = 9001 // TODO: this should be pulled from the db
 	}
 
 	out, err := JSONMarshal(&wrapper, true)
