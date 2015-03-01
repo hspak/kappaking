@@ -56,18 +56,22 @@ func queryDB(db *sql.DB) ([]Data, error) {
 }
 
 func addChanList(streamList chan string) {
-	for _, dat := range CacheDB.Data {
-		fmt.Println("adding", dat.DisplayName)
-		streamList <- dat.DisplayName
-	}
+	// for _, dat := range CacheDB.Data {
+	// fmt.Println("adding", dat.DisplayName)
+	// streamList <- dat.DisplayName
+	// }
 }
 
 func updateDB(db *sql.DB, streamList chan string) error {
 	insertDB(db, getTopStreams())
+
+	// wait long enough for the first queryDB
+	// so that CacheDB is not empty
 	go func() {
 		time.Sleep(time.Second * 5)
 		addChanList(streamList)
 	}()
+
 	// poll twitch every 5 minute
 	ticker := time.NewTicker(time.Minute * 5)
 	go func() {
@@ -119,7 +123,7 @@ func insertDB(db *sql.DB, streams *Streams) error {
 
 		_, err = tx.Exec(`
 			UPDATE streams
-			SET 
+			SET
 				viewers = newvals.viewers,
 				game = newvals.game,
 				logo = newvals.logo,
@@ -135,7 +139,7 @@ func insertDB(db *sql.DB, streams *Streams) error {
 
 		_, err = tx.Exec(`
 			INSERT INTO streams
-			SELECT 
+			SELECT
 				newvals.name,
 				newvals.viewers,
 				newvals.game,
