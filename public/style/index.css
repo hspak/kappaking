@@ -1,0 +1,22 @@
+html {
+  margin: 0;
+  padding: 0;
+}
+.channelTable {
+  max-width: 1000px;
+}
+
+.channelCell {
+  display: inline-block;
+  width: 300px;
+  margin: 16px;
+}
+
+.channelLogo {
+  /* display: inline-block; */
+}
+
+.channelLogo img {
+  width: 64px;
+  height: 64px;
+}
