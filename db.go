@@ -113,7 +113,7 @@ func openDB() (*sql.DB, error) {
 		game	VARCHAR(255),
 		logo	VARCHAR(255),
 		status	VARCHAR(255),
-		url		VARCHAR(255),
+		url 	VARCHAR(255),
 		kappa	INTEGER);`)
 	return db, nil
 }
