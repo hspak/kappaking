@@ -1,9 +1,6 @@
 package main
 
-import (
-	"fmt"
-	"log"
-)
+import "log"
 
 // TODO: need a way to detect streams going offline for bot and fetching db
 
@@ -27,7 +24,6 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
-	fmt.Println("ASLDJSALKDJ")
 
 	CacheDB.Fresh = false
 	CacheDB.Data = nil

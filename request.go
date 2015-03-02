@@ -99,6 +99,7 @@ func getTopStreams(first bool) *Streams {
 	if first {
 		LiveStreams = make(map[string]bool)
 		for _, d := range dat.Stream {
+			fmt.Println("livestream true", d.Channel.DisplayName)
 			LiveStreams[d.Channel.DisplayName] = true
 		}
 	} else {
@@ -106,6 +107,7 @@ func getTopStreams(first bool) *Streams {
 			LiveStreams[k] = false
 		}
 		for _, d := range dat.Stream {
+			fmt.Println("livestream true", d.Channel.DisplayName)
 			LiveStreams[d.Channel.DisplayName] = true
 		}
 	}
@@ -130,7 +132,7 @@ func returnJSON(db *sql.DB) string {
 		// TODO: do more
 		return "error"
 	}
-	wrapper := &Wrapper{Streams: d}
+	wrapper := &Wrapper{Streams: d[0:25]}
 	out, err := JSONMarshal(&wrapper, true)
 	if err != nil {
 		// TODO: do more
