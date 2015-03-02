@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -35,8 +36,9 @@ func queryDB(db *sql.DB) ([]Data, error) {
 		var url string
 		var logo string
 		var viewers int
+		var kpm int
 		var kappa int
-		err = rows.Scan(&name, &viewers, &game, &logo, &status, &url, &kappa)
+		err = rows.Scan(&name, &viewers, &game, &logo, &status, &url, &kpm, &kappa)
 		if err != nil {
 			return nil, err
 		}
@@ -46,7 +48,8 @@ func queryDB(db *sql.DB) ([]Data, error) {
 		dat[i].Url = url
 		dat[i].Logo = logo
 		dat[i].Viewers = viewers
-		dat[i].Kappa = KPM[name]
+		dat[i].Kpm = KPM[name]
+		dat[i].Kappa = 9001
 		i++
 	}
 	CacheDB.Fresh = true
@@ -63,7 +66,10 @@ func addChanList(streamList chan *BotAction) {
 }
 
 func updateDB(db *sql.DB, streamList chan *BotAction) error {
-	insertDB(db, getTopStreams(true))
+	err := insertDB(db, getTopStreams(true))
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// wait long enough for the first queryDB
 	// so that CacheDB is not empty
@@ -76,7 +82,10 @@ func updateDB(db *sql.DB, streamList chan *BotAction) error {
 	ticker := time.NewTicker(time.Minute * 5)
 	go func() {
 		for _ = range ticker.C {
-			insertDB(db, getTopStreams(false))
+			err = insertDB(db, getTopStreams(false))
+			if err != nil {
+				log.Fatal(err)
+			}
 			addChanList(streamList)
 			CacheDB.Fresh = false
 		}
@@ -105,6 +114,7 @@ func insertDB(db *sql.DB, streams *Streams) error {
 				logo	VARCHAR(255),
 				status	VARCHAR(255),
 				url		VARCHAR(255),
+				maxkpm	INTEGER,
 				kappa	INTEGER
 			);`)
 		if err != nil {
@@ -113,11 +123,11 @@ func insertDB(db *sql.DB, streams *Streams) error {
 
 		_, err = tx.Exec(`
 			INSERT INTO
-				newvals(name, viewers, game, logo, status, url, kappa)
-				VALUES($3, $2, $1, $4, $5, $6, $7);`,
+				newvals(name, viewers, game, logo, status, url, maxkpm, kappa)
+				VALUES($3, $2, $1, $4, $5, $6, $7, $8);`,
 			stream.Game, stream.Viewers,
 			streamName, stream.Channel.Logo,
-			stream.Channel.Status, stream.Channel.Url, KPM[streamName])
+			stream.Channel.Status, stream.Channel.Url, KPM[streamName], 9001)
 		if err != nil {
 			return err
 		}
@@ -135,6 +145,7 @@ func insertDB(db *sql.DB, streams *Streams) error {
 				logo = newvals.logo,
 				url = newvals.url,
 				status = newvals.status,
+				maxkpm = newvals.maxkpm,
 				kappa = newvals.kappa
 			FROM newvals
 			WHERE newvals.name = streams.name;
@@ -152,6 +163,7 @@ func insertDB(db *sql.DB, streams *Streams) error {
 				newvals.logo,
 				newvals.status,
 				newvals.url,
+				newvals.maxkpm,
 				newvals.kappa
 			FROM newvals
 			LEFT OUTER JOIN streams ON (streams.name = newvals.name)
@@ -178,13 +190,17 @@ func openDB() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS streams (
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS streams(
 		name 	VARCHAR(255) PRIMARY KEY,
 		viewers INTEGER,
 		game	VARCHAR(255),
 		logo	VARCHAR(255),
 		status	VARCHAR(255),
 		url 	VARCHAR(255),
+		maxkpm 	INTEGER,
 		kappa	INTEGER);`)
+	if err != nil {
+		return nil, err
+	}
 	return db, nil
 }

@@ -1,6 +1,9 @@
 package main
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
 
 // TODO: need a way to detect streams going offline for bot and fetching db
 
@@ -21,8 +24,10 @@ func main() {
 	// defer profile.Start(profile.CPUProfile).Stop()
 	db, err := openDB()
 	if err != nil {
-		log.Fatal("Couldn't connect to db:postgres")
+		log.Fatal(err)
 	}
+	defer db.Close()
+	fmt.Println("ASLDJSALKDJ")
 
 	CacheDB.Fresh = false
 	CacheDB.Data = nil

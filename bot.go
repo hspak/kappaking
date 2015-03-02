@@ -54,7 +54,7 @@ func launchBot(streamList chan *BotAction) {
 			return
 		}
 
-		name := e.Arguments[0][1:]
+		name := strings.ToLower(e.Arguments[0][1:])
 		if _, ok := KPM[name]; !ok {
 			KPM[name] = 0
 		}
@@ -73,6 +73,7 @@ func launchBot(streamList chan *BotAction) {
 	// use channels to avoid data hazard?
 	go func() {
 		for data := range kappaCounter {
+			// TODO: keep track of max KPM
 			KPM[data.Name] += data.Count
 			fmt.Println("  Kappa update:", data.Name, " =>", KPM[data.Name])
 		}
