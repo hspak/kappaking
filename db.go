@@ -9,11 +9,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type Cache struct {
-	Fresh bool
-	Data  []Data
-}
-
 var CacheDB Cache
 
 func queryDB(db *sql.DB) ([]Data, error) {

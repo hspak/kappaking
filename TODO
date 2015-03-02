@@ -1,5 +1,6 @@
- 1. Have request.go be a middleman between postgres and twitch
-      - Update every 5 seconds
- 2. Start setting up the bot to count Kappa's
- 3. ...
- 4. PROFIT
+Find a good way for the bot to join/part live channels
+
+More things to keep track off:
+  - Total Kappa for channel
+  - Highest KPM
+  - Highest Kappa User per channel

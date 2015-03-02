@@ -10,11 +10,6 @@ import (
 	"github.com/thoj/go-ircevent"
 )
 
-type KappaData struct {
-	Name  string
-	Count int
-}
-
 // TODO: should figure out a better way to share this data
 var KPM map[string]int
 
@@ -78,7 +73,6 @@ func launchBot(streamList chan *BotAction) {
 	// use channels to avoid data hazard?
 	go func() {
 		for data := range kappaCounter {
-			time.Sleep(time.Second)
 			KPM[data.Name] += data.Count
 			fmt.Println("  Kappa update:", data.Name, " =>", KPM[data.Name])
 		}

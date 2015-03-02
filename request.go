@@ -10,20 +10,6 @@ import (
 	"net/http"
 )
 
-type Data struct {
-	DisplayName string `json:"display_name"`
-	Game        string `json:"game"`
-	Viewers     int    `json:"viewers"`
-	Kappa       int    `json:"kappa"`
-	Logo        string `json:"logo"`
-	Status      string `json:"status"`
-	Url         string `json:"url"`
-}
-
-type Wrapper struct {
-	Streams []Data
-}
-
 type Streams struct {
 	// {{{
 	Stream []struct {

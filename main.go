@@ -18,6 +18,7 @@ type BotAction struct {
 }
 
 func main() {
+	// defer profile.Start(profile.CPUProfile).Stop()
 	db, err := openDB()
 	if err != nil {
 		log.Fatal("Couldn't connect to db:postgres")
