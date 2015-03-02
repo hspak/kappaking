@@ -1,9 +1,6 @@
 package main
 
-import (
-	"fmt"
-	"log"
-)
+import "log"
 
 // TODO: need a way to detect streams going offline for bot and fetching db
 
@@ -15,6 +12,11 @@ import (
 //    - kappa subtract          (1 minute)
 //    - kappa update            (channel blocked)
 
+type BotAction struct {
+	Channel string
+	Join    bool
+}
+
 func main() {
 	db, err := openDB()
 	if err != nil {
@@ -23,9 +25,7 @@ func main() {
 
 	CacheDB.Fresh = false
 	CacheDB.Data = nil
-
-	fmt.Println("?")
-	streamList := make(chan string, 25)
+	streamList := make(chan *BotAction, 25)
 
 	updateDB(db, streamList)
 	go serveWeb(db)

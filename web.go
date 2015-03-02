@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -16,6 +17,6 @@ func serveWeb(db *sql.DB) {
 	http.HandleFunc("/api/get/data", func(w http.ResponseWriter, r *http.Request) {
 		apiHandler(w, r, db)
 	})
-	fmt.Println("serving")
+	log.Println("listening on localhost:4000")
 	http.ListenAndServe(":4000", nil)
 }

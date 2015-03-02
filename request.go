@@ -87,8 +87,10 @@ type Streams struct {
 	// }}}
 }
 
+var LiveStreams map[string]bool
+
 // It is OK if this returns nil. It will only prevent the DB from updating
-func getTopStreams() *Streams {
+func getTopStreams(first bool) *Streams {
 	res, err := http.Get("https://api.twitch.tv/kraken/streams")
 	if err != nil {
 		log.Println("info: no response from api")
@@ -105,6 +107,21 @@ func getTopStreams() *Streams {
 	if err := json.Unmarshal(body, dat); err != nil {
 		log.Println("could not parse json")
 		return nil
+	}
+
+	// TODO: think of a more efficient way
+	if first {
+		LiveStreams = make(map[string]bool)
+		for _, d := range dat.Stream {
+			LiveStreams[d.Channel.DisplayName] = true
+		}
+	} else {
+		for k, _ := range LiveStreams {
+			LiveStreams[k] = false
+		}
+		for _, d := range dat.Stream {
+			LiveStreams[d.Channel.DisplayName] = true
+		}
 	}
 
 	return dat

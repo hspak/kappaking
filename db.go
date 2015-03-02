@@ -18,8 +18,8 @@ var CacheDB Cache
 
 func queryDB(db *sql.DB) ([]Data, error) {
 	if CacheDB.Fresh {
+		fmt.Println("UPDATE KPM")
 		for i, dat := range CacheDB.Data {
-			fmt.Println("UPDATE", dat.DisplayName, "=", KPM[dat.DisplayName])
 			CacheDB.Data[i].Kappa = KPM[dat.DisplayName]
 		}
 		fmt.Println("return cached")
@@ -60,20 +60,20 @@ func queryDB(db *sql.DB) ([]Data, error) {
 	return dat, nil
 }
 
-func addChanList(streamList chan string) {
-	// for _, dat := range CacheDB.Data {
-	// fmt.Println("adding", dat.DisplayName)
-	// streamList <- dat.DisplayName
-	// }
+func addChanList(streamList chan *BotAction) {
+	for _, dat := range CacheDB.Data {
+		fmt.Println("adding", dat.DisplayName)
+		streamList <- &BotAction{Channel: dat.DisplayName, Join: true}
+	}
 }
 
-func updateDB(db *sql.DB, streamList chan string) error {
-	insertDB(db, getTopStreams())
+func updateDB(db *sql.DB, streamList chan *BotAction) error {
+	insertDB(db, getTopStreams(true))
 
 	// wait long enough for the first queryDB
 	// so that CacheDB is not empty
 	go func() {
-		time.Sleep(time.Second * 5)
+		time.Sleep(time.Second * 6)
 		addChanList(streamList)
 	}()
 
@@ -81,7 +81,7 @@ func updateDB(db *sql.DB, streamList chan string) error {
 	ticker := time.NewTicker(time.Minute * 5)
 	go func() {
 		for _ = range ticker.C {
-			insertDB(db, getTopStreams())
+			insertDB(db, getTopStreams(false))
 			addChanList(streamList)
 			CacheDB.Fresh = false
 		}
@@ -96,6 +96,7 @@ func insertDB(db *sql.DB, streams *Streams) error {
 	}
 
 	for _, stream := range streams.Stream {
+		streamName := strings.ToLower(stream.Channel.DisplayName)
 		tx, err := db.Begin()
 		if err != nil {
 			return err
@@ -120,8 +121,8 @@ func insertDB(db *sql.DB, streams *Streams) error {
 				newvals(name, viewers, game, logo, status, url, kappa)
 				VALUES($3, $2, $1, $4, $5, $6, $7);`,
 			stream.Game, stream.Viewers,
-			strings.ToLower(stream.Channel.DisplayName), stream.Channel.Logo,
-			stream.Channel.Status, stream.Channel.Url, 1)
+			streamName, stream.Channel.Logo,
+			stream.Channel.Status, stream.Channel.Url, KPM[streamName])
 		if err != nil {
 			return err
 		}

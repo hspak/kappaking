@@ -26,7 +26,7 @@ func getPassword() string {
 	return string(pass)
 }
 
-func launchBot(streamList chan string) {
+func launchBot(streamList chan *BotAction) {
 	con := irc.IRC("kappakingbot", "kappakingbot")
 	con.Password = getPassword()
 	err := con.Connect("irc.twitch.tv:6667")
@@ -34,47 +34,44 @@ func launchBot(streamList chan string) {
 		log.Fatal(err)
 	}
 
-	// temp to test
-	HARDCODE := "dotapit"
+	go func() {
+		for action := range streamList {
+			stream := strings.ToLower(action.Channel)
+			fmt.Println("joining", stream)
+			if action.Join {
+				con.Join("#" + stream)
+			} else {
+				con.Part("#" + stream)
+			}
 
-	con.Join("#" + HARDCODE)
-	// go func() {
-	// for name := range streamList {
-	// stream := strings.ToLower(name)
-	// fmt.Println("joining", stream)
-	// con.Join("#" + stream)
+			// required, either I crash or get kicked without it
+			time.Sleep(time.Second)
+		}
+	}()
 
-	// // required, either I crash or get kicked without it
-	// time.Sleep(time.Second)
-	// }
-	// }()
-
-	// this count is arbitrary
+	// this buffer size is arbitrary
 	kappaCounter := make(chan KappaData, 128)
 	KPM = make(map[string]int)
 
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
 		count := strings.Count(e.Message(), "Kappa")
 		if count == 0 {
-			fmt.Println("no kappas...")
 			return
 		}
 
-		// name := strings.Split(e.Host, ".")[0]
-		name := strings.ToLower(HARDCODE)
+		name := e.Arguments[0][1:]
 		if _, ok := KPM[name]; !ok {
 			KPM[name] = 0
 		}
 
-		// fmt.Println(e.Connection)
-		fmt.Println("Kappa from", name, "=", count)
+		// fmt.Println("  Kappa add", name, "=>", count)
 		kappaCounter <- KappaData{Name: name, Count: count}
 
 		// subtract counts after minute
 		go func() {
 			time.Sleep(time.Minute)
 			kappaCounter <- KappaData{Name: name, Count: -count}
-			fmt.Println("sub:", name, " =>", KPM[name])
+			// fmt.Println("  Kappa sub:", name, " =>", KPM[name])
 		}()
 	})
 
@@ -83,7 +80,7 @@ func launchBot(streamList chan string) {
 		for data := range kappaCounter {
 			time.Sleep(time.Second)
 			KPM[data.Name] += data.Count
-			fmt.Println("update:", data.Name, " =>", KPM[data.Name])
+			fmt.Println("  Kappa update:", data.Name, " =>", KPM[data.Name])
 		}
 	}()
 
