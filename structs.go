@@ -11,9 +11,9 @@ type Data struct {
 	DisplayName string `json:"display_name"`
 	Game        string `json:"game"`
 	Viewers     int    `json:"viewers"`
-	Kappa       int    `json:"kappa"`
 	CurrKpm     int    `json:"currkpm"`
 	MaxKpm      int    `json:"maxkpm"`
+	Kappa       int    `json:"kappa"`
 	Logo        string `json:"logo"`
 	Status      string `json:"status"`
 	Url         string `json:"url"`

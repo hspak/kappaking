@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type Streams struct {
@@ -73,7 +73,8 @@ type Streams struct {
 	// }}}
 }
 
-var LiveStreams map[string]bool
+var LiveStreams [25]string
+var PrevStreams [25]string
 
 // It is OK if this returns nil. It will only prevent the DB from updating
 func getTopStreams(first bool) *Streams {
@@ -95,23 +96,15 @@ func getTopStreams(first bool) *Streams {
 		return nil
 	}
 
-	// TODO: think of a more efficient way
-	if first {
-		LiveStreams = make(map[string]bool)
-		for _, d := range dat.Stream {
-			fmt.Println("livestream true", d.Channel.DisplayName)
-			LiveStreams[d.Channel.DisplayName] = true
-		}
-	} else {
-		for k, _ := range LiveStreams {
-			LiveStreams[k] = false
-		}
-		for _, d := range dat.Stream {
-			fmt.Println("livestream true", d.Channel.DisplayName)
-			LiveStreams[d.Channel.DisplayName] = true
+	// TODO: think of a more efficient way, though its only 25 elements
+	if !first {
+		for i := 0; i < 25; i++ {
+			PrevStreams[i] = LiveStreams[i]
 		}
 	}
-
+	for i, d := range dat.Stream {
+		LiveStreams[i] = strings.ToLower(d.Channel.DisplayName)
+	}
 	return dat
 }
 
@@ -130,22 +123,14 @@ func returnJSON(db *sql.DB) string {
 	d, err := queryDB(db)
 	if err != nil {
 		// TODO: do more
+		// return err.Error()
 		return "error"
 	}
-	wrapper := &Wrapper{Streams: d[0:25]}
+	wrapper := &Wrapper{Streams: d}
 	out, err := JSONMarshal(&wrapper, true)
 	if err != nil {
 		// TODO: do more
 		return "error"
 	}
 	return string(out)
-}
-
-func prettyPrint(streams *Streams) {
-	for _, stream := range streams.Stream {
-		fmt.Println("=== STREAM ===")
-		fmt.Println(stream.Channel.DisplayName)
-		fmt.Println(stream.Game)
-		fmt.Println(stream.Viewers)
-	}
 }

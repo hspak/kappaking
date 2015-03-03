@@ -33,10 +33,12 @@ func launchBot(streamList chan *BotAction) {
 		for action := range streamList {
 			stream := strings.ToLower(action.Channel)
 			if action.Join {
-				log.Println("joining", stream)
+				con.Part("#" + stream)
+				time.Sleep(time.Second * 2)
+				log.Println("Bot: joining", stream)
 				con.Join("#" + stream)
 			} else {
-				log.Println("parting", stream)
+				log.Println("Bot: parting", stream)
 				con.Part("#" + stream)
 			}
 

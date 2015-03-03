@@ -14,19 +14,32 @@ var CacheDB Cache
 
 func queryDB(db *sql.DB) ([]Data, error) {
 	if CacheDB.Fresh {
+		// log.Println("DB: returning cache")
 		for i, dat := range CacheDB.Data {
-			CacheDB.Data[i].Kappa = KPM[dat.DisplayName]
+			CacheDB.Data[i].CurrKpm = KPM[dat.DisplayName]
 		}
 		return CacheDB.Data, nil
 	}
 
-	rows, err := db.Query(`SELECT * FROM streams ORDER BY currkpm, viewers DESC LIMIT 50`)
+	rows, err := db.Query(`SELECT * FROM streams
+		WHERE name IN (
+			$1, $2 ,$3 ,$4 ,$5,
+			$6, $7 ,$8 ,$9 ,$10,
+			$11,$12,$13,$14,$15,
+			$16,$17,$18,$19,$20,
+			$21,$22,$23,$24,$25)
+		ORDER BY viewers DESC`,
+		LiveStreams[0], LiveStreams[1], LiveStreams[2], LiveStreams[3], LiveStreams[4],
+		LiveStreams[5], LiveStreams[6], LiveStreams[7], LiveStreams[8], LiveStreams[9],
+		LiveStreams[10], LiveStreams[11], LiveStreams[12], LiveStreams[13], LiveStreams[14],
+		LiveStreams[15], LiveStreams[16], LiveStreams[17], LiveStreams[18], LiveStreams[19],
+		LiveStreams[20], LiveStreams[21], LiveStreams[22], LiveStreams[23], LiveStreams[24])
 	if err != nil {
 		return nil, err
 	}
 
 	i := 0
-	dat := make([]Data, 50)
+	dat := make([]Data, 25)
 	for rows.Next() {
 		var name string
 		var game string
@@ -47,27 +60,34 @@ func queryDB(db *sql.DB) ([]Data, error) {
 		dat[i].Url = url
 		dat[i].Logo = logo
 		dat[i].Viewers = viewers
-		dat[i].CurrKpm = KPM[name]
-		dat[i].MaxKpm = 1234
-		dat[i].Kappa = 9001
+		dat[i].CurrKpm = currkpm
+		dat[i].MaxKpm = maxkpm
+		dat[i].Kappa = kappa
 		i++
 	}
 	CacheDB.Fresh = true
 	CacheDB.Data = dat
+	// log.Println("DB: returning db")
 	return dat, nil
 }
 
-func addChanList(streamList chan *BotAction) {
-	for _, dat := range CacheDB.Data {
-		if dat.DisplayName == "" {
-			continue
+func stillLive(name string) bool {
+	for _, prev := range PrevStreams {
+		if name == prev {
+			return true
 		}
+	}
+	return false
+}
 
-		fmt.Println("check", dat.DisplayName)
-		if live, exist := LiveStreams[dat.DisplayName]; live && exist {
-			streamList <- &BotAction{Channel: dat.DisplayName, Join: true}
+func addChanList(streamList chan *BotAction, first bool) {
+	for i := 0; i < 25; i++ {
+		if first {
+			streamList <- &BotAction{Channel: LiveStreams[i], Join: true}
+		} else if stillLive(LiveStreams[i]) {
+			streamList <- &BotAction{Channel: LiveStreams[i], Join: true}
 		} else {
-			streamList <- &BotAction{Channel: dat.DisplayName, Join: false}
+			streamList <- &BotAction{Channel: LiveStreams[i], Join: false}
 		}
 	}
 }
@@ -82,7 +102,7 @@ func updateDB(db *sql.DB, streamList chan *BotAction) error {
 	// so that CacheDB is not empty
 	go func() {
 		time.Sleep(time.Second * 6)
-		addChanList(streamList)
+		addChanList(streamList, true)
 	}()
 
 	// poll twitch every 5 minute
@@ -93,7 +113,7 @@ func updateDB(db *sql.DB, streamList chan *BotAction) error {
 			if err != nil {
 				log.Fatal(err)
 			}
-			addChanList(streamList)
+			addChanList(streamList, false)
 			CacheDB.Fresh = false
 		}
 	}()
@@ -137,6 +157,7 @@ func insertDB(db *sql.DB, streams *Streams) error {
 			stream.Game, stream.Viewers,
 			streamName, stream.Channel.Logo,
 			stream.Channel.Status, stream.Channel.Url, KPM[streamName], 1234, 9001)
+		// TODO: maxkpm, kappa values
 		if err != nil {
 			return err
 		}
