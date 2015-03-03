@@ -10,6 +10,7 @@ html {
   display: inline-block;
   width: 300px;
   margin: 16px;
+  background-color: #eeeeee;
 }
 
 .channelLogo {
