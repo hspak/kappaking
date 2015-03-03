@@ -41,6 +41,8 @@ var ChannelCell = React.createClass({
         <ChannelDynamic
           game={this.props.stream.game}
           viewers={this.props.stream.viewers}
+          kappa={this.props.stream.kappa}
+          maxkpm={this.props.stream.maxkpm}
           currkpm={this.props.stream.currkpm} />
       </div>
     );
@@ -65,6 +67,8 @@ var ChannelDynamic = React.createClass({
         <div className="gameTitle">Game: {this.props.game}</div>
         <div className="viewerCount">Viewer: {this.props.viewers}</div>
         <div className="currKpm">KPM: {this.props.currkpm}</div>
+        <div className="currKpm">MAX KPM: {this.props.maxkpm}</div>
+        <div className="currKpm">Kappa: {this.props.kappa}</div>
       </div>
     );
   }

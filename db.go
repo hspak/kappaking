@@ -71,23 +71,21 @@ func queryDB(db *sql.DB) ([]Data, error) {
 	return dat, nil
 }
 
-func stillLive(name string) bool {
-	for _, prev := range PrevStreams {
-		if name == prev {
-			return true
+func deadStream(name string) bool {
+	for _, curr := range LiveStreams {
+		if name == curr {
+			return false
 		}
 	}
-	return false
+	return true
 }
 
-func addChanList(streamList chan *BotAction, first bool) {
+func addChanList(streamList chan *BotAction) {
 	for i := 0; i < 25; i++ {
-		if first {
-			streamList <- &BotAction{Channel: LiveStreams[i], Join: true}
-		} else if stillLive(LiveStreams[i]) {
-			streamList <- &BotAction{Channel: LiveStreams[i], Join: true}
-		} else {
+		if deadStream(PrevStreams[i]) {
 			streamList <- &BotAction{Channel: LiveStreams[i], Join: false}
+		} else {
+			streamList <- &BotAction{Channel: LiveStreams[i], Join: true}
 		}
 	}
 }
@@ -102,7 +100,9 @@ func updateDB(db *sql.DB, streamList chan *BotAction) error {
 	// so that CacheDB is not empty
 	go func() {
 		time.Sleep(time.Second * 6)
-		addChanList(streamList, true)
+		for _, stream := range LiveStreams {
+			streamList <- &BotAction{Channel: LiveStreams[i], Join: true}
+		}
 	}()
 
 	// poll twitch every 5 minute
@@ -113,7 +113,7 @@ func updateDB(db *sql.DB, streamList chan *BotAction) error {
 			if err != nil {
 				log.Fatal(err)
 			}
-			addChanList(streamList, false)
+			addChanList(streamList)
 			CacheDB.Fresh = false
 		}
 	}()

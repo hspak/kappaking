@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/thoj/go-ircevent"
+	"go-ircevent"
 )
 
 // TODO: should figure out a better way to share this data
@@ -29,11 +29,16 @@ func launchBot(streamList chan *BotAction) {
 		log.Fatal(err)
 	}
 
+	// I'm not sure if this has any effect
+	for _, stream := range LiveStreams {
+		con.Part("#" + stream)
+	}
+
 	go func() {
 		for action := range streamList {
 			stream := strings.ToLower(action.Channel)
 			if action.Join {
-				con.Part("#" + stream)
+				// better slow than kicked
 				time.Sleep(time.Second * 2)
 				log.Println("Bot: joining", stream)
 				con.Join("#" + stream)
