@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -82,11 +81,11 @@ func deadStream(name string) bool {
 
 func addChanList(streamList chan *BotAction) {
 	for i := 0; i < 25; i++ {
-		if deadStream(PrevStreams[i]) {
-			streamList <- &BotAction{Channel: LiveStreams[i], Join: false}
-		} else {
-			streamList <- &BotAction{Channel: LiveStreams[i], Join: true}
-		}
+		// if deadStream(PrevStreams[i]) {
+		// streamList <- &BotAction{Channel: LiveStreams[i], Join: false}
+		// } else {
+		streamList <- &BotAction{Channel: LiveStreams[i], Join: true}
+		// }
 	}
 }
 
@@ -101,7 +100,7 @@ func updateDB(db *sql.DB, streamList chan *BotAction) error {
 	go func() {
 		time.Sleep(time.Second * 6)
 		for _, stream := range LiveStreams {
-			streamList <- &BotAction{Channel: LiveStreams[i], Join: true}
+			streamList <- &BotAction{Channel: stream, Join: true}
 		}
 	}()
 
@@ -128,7 +127,6 @@ func insertDB(db *sql.DB, streams *Streams) error {
 
 	for _, stream := range streams.Stream {
 		streamName := strings.ToLower(stream.Channel.DisplayName)
-		fmt.Println(streamName, "count:", KPM[streamName])
 		tx, err := db.Begin()
 		if err != nil {
 			return err

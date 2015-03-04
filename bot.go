@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -83,7 +82,7 @@ func launchBot(streamList chan *BotAction) {
 		for data := range kappaCounter {
 			// TODO: keep track of max KPM
 			KPM[data.Name] += data.Count
-			fmt.Println("  Kappa update:", data.Name, " =>", KPM[data.Name])
+			// fmt.Println("  Kappa update:", data.Name, " =>", KPM[data.Name])
 		}
 	}()
 
