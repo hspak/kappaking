@@ -6,11 +6,13 @@ import (
 	"strings"
 	"time"
 
-	"go-ircevent"
+	"github.com/hspak/go-ircevent"
 )
 
-// TODO: should figure out a better way to share this data
+// TODO: should probably create a struct with an interface for this data
+var MaxKPM map[string]int
 var KPM map[string]int
+var TotalKappa map[string]int
 
 func getPassword() string {
 	pass, err := ioutil.ReadFile("password")
@@ -54,6 +56,8 @@ func launchBot(streamList chan *BotAction) {
 	// this buffer size is arbitrary
 	kappaCounter := make(chan KappaData, 128)
 	KPM = make(map[string]int)
+	MaxKPM = make(map[string]int)
+	TotalKappa = make(map[string]int)
 
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
 		count := strings.Count(e.Message(), "Kappa")
@@ -64,10 +68,15 @@ func launchBot(streamList chan *BotAction) {
 		name := strings.ToLower(e.Arguments[0][1:])
 		if _, ok := KPM[name]; !ok {
 			KPM[name] = 0
+
+			// TODO: these might need special logic to pull from db
+			MaxKPM[name] = 0
+			TotalKappa[name] = 0
 		}
 
 		// fmt.Println("  Kappa add", name, "=>", count)
 		kappaCounter <- KappaData{Name: name, Count: count}
+		TotalKappa[name] += 1
 
 		// subtract counts after minute
 		go func() {
@@ -82,6 +91,9 @@ func launchBot(streamList chan *BotAction) {
 		for data := range kappaCounter {
 			// TODO: keep track of max KPM
 			KPM[data.Name] += data.Count
+			if KPM[data.Name] > MaxKPM[data.Name] {
+				MaxKPM[data.Name] = KPM[data.Name]
+			}
 			// fmt.Println("  Kappa update:", data.Name, " =>", KPM[data.Name])
 		}
 	}()

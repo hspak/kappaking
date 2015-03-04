@@ -16,6 +16,8 @@ func queryDB(db *sql.DB) ([]Data, error) {
 		// log.Println("DB: returning cache")
 		for i, dat := range CacheDB.Data {
 			CacheDB.Data[i].CurrKpm = KPM[dat.DisplayName]
+			CacheDB.Data[i].MaxKpm = MaxKPM[dat.DisplayName]
+			CacheDB.Data[i].Kappa = Kappa[dat.DisplayName]
 		}
 		return CacheDB.Data, nil
 	}
@@ -154,7 +156,7 @@ func insertDB(db *sql.DB, streams *Streams) error {
 				VALUES($3, $2, $1, $4, $5, $6, $7, $8, $9);`,
 			stream.Game, stream.Viewers,
 			streamName, stream.Channel.Logo,
-			stream.Channel.Status, stream.Channel.Url, KPM[streamName], 1234, 9001)
+			stream.Channel.Status, stream.Channel.Url, KPM[streamName], MaxKPM[streamName], TotalKappa[streamName])
 		// TODO: maxkpm, kappa values
 		if err != nil {
 			return err
