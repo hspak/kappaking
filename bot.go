@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -22,7 +23,7 @@ func getPassword() string {
 	return string(pass)
 }
 
-func launchBot(streamList chan *BotAction) {
+func launchBot(db *sql.DB, streamList chan *BotAction) {
 	con := irc.IRC("kappakingbot", "kappakingbot")
 	con.Password = getPassword()
 	err := con.Connect("irc.twitch.tv:6667")
@@ -70,8 +71,10 @@ func launchBot(streamList chan *BotAction) {
 			KPM[name] = 0
 
 			// TODO: these might need special logic to pull from db
-			MaxKPM[name] = 0
-			TotalKappa[name] = 0
+			MaxKPM[name], TotalKappa[name], err = grabKappa(db, name)
+			if err != nil {
+				log.Println(err)
+			}
 		}
 
 		// fmt.Println("  Kappa add", name, "=>", count)

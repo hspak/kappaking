@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -11,13 +12,31 @@ import (
 
 var CacheDB Cache
 
+func grabKappa(db *sql.DB, name string) (int, int, error) {
+	row, err := db.Query(`SELECT maxkpm, kappa FROM streams WHERE name=$1`, name)
+	maxkpm := 0
+	kappa := 0
+	if err != nil {
+		fmt.Println("damn it")
+		return 0, 0, err
+	}
+	if row.Next() {
+		err = row.Scan(&maxkpm, &kappa)
+		if err != nil {
+			fmt.Println("fuck")
+			return 0, 0, err
+		}
+	}
+	return maxkpm, kappa, nil
+}
+
 func queryDB(db *sql.DB) ([]Data, error) {
 	if CacheDB.Fresh {
 		// log.Println("DB: returning cache")
 		for i, dat := range CacheDB.Data {
 			CacheDB.Data[i].CurrKpm = KPM[dat.DisplayName]
 			CacheDB.Data[i].MaxKpm = MaxKPM[dat.DisplayName]
-			CacheDB.Data[i].Kappa = Kappa[dat.DisplayName]
+			CacheDB.Data[i].Kappa = TotalKappa[dat.DisplayName]
 		}
 		return CacheDB.Data, nil
 	}
@@ -72,22 +91,24 @@ func queryDB(db *sql.DB) ([]Data, error) {
 	return dat, nil
 }
 
-func deadStream(name string) bool {
-	for _, curr := range LiveStreams {
+func deadStream(name string) (bool, int) {
+	for i, curr := range LiveStreams {
 		if name == curr {
-			return false
+			fmt.Println("not stream", name)
+			return false, i
 		}
 	}
-	return true
+	fmt.Println("dead stream", name)
+	return true, -1
 }
 
 func addChanList(streamList chan *BotAction) {
 	for i := 0; i < 25; i++ {
-		// if deadStream(PrevStreams[i]) {
-		// streamList <- &BotAction{Channel: LiveStreams[i], Join: false}
-		// } else {
-		streamList <- &BotAction{Channel: LiveStreams[i], Join: true}
-		// }
+		if dead, j := deadStream(PrevStreams[i]); dead {
+			streamList <- &BotAction{Channel: LiveStreams[j], Join: false}
+		} else {
+			streamList <- &BotAction{Channel: LiveStreams[i], Join: true}
+		}
 	}
 }
 

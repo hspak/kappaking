@@ -31,5 +31,5 @@ func main() {
 
 	updateDB(db, streamList)
 	go serveWeb(db)
-	launchBot(streamList)
+	launchBot(db, streamList)
 }
