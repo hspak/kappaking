@@ -138,7 +138,12 @@ func updateDB(db *sql.DB, streamList chan *BotAction) error {
 	ticker := time.NewTicker(time.Minute * 5)
 	go func() {
 		for _ = range ticker.C {
-			err = insertDB(db, getTopStreams(false), false)
+			topStreams = getTopStreams(false)
+			if topStreams == nil {
+				continue
+			}
+
+			err = insertDB(db, topStreams, false)
 			if err != nil {
 				log.Fatal(err)
 			}

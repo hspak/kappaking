@@ -69,7 +69,6 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 			KPM[name] = 0
 		}
 
-		// fmt.Println("  Kappa add", name, "=>", count)
 		kappaCounter <- KappaData{Name: name, Count: count}
 		TotalKappa[name] += count
 
@@ -77,7 +76,15 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 		go func() {
 			time.Sleep(time.Minute)
 			kappaCounter <- KappaData{Name: name, Count: -count}
-			// fmt.Println("  Kappa sub:", name, " =>", KPM[name])
+
+			// try to disconnect completely instead of trying to reconnect
+			if !con.Connected() {
+				con.Disconnect()
+				err := con.Connect("irc.twitch.tv:6667")
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
 		}()
 	})
 
@@ -90,7 +97,6 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 				MaxKPM[data.Name] = KPM[data.Name]
 				DateKPM[data.Name] = kpmdate
 			}
-			// fmt.Println("  Kappa update:", data.Name, " =>", KPM[data.Name])
 		}
 	}()
 
