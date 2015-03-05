@@ -10,21 +10,22 @@ import (
 
 var CacheDB Cache
 
-func grabCounts(db *sql.DB, name string) (int, int, int, error) {
-	row, err := db.Query(`SELECT maxkpm, kappa, minutes FROM streams WHERE name=$1`, name)
+func grabCounts(db *sql.DB, name string) (int, int, int, time.Time, error) {
+	row, err := db.Query(`SELECT maxkpm, kappa, minutes, kpmdate FROM streams WHERE name=$1`, name)
 	var maxkpm int
 	var kappa int
 	var minutes int
+	var kpmdate time.Time
 	if err != nil {
-		return -1, -1, -1, err
+		return -1, -1, -1, time.Now(), err
 	}
 	if row.Next() {
-		err = row.Scan(&maxkpm, &kappa, &minutes)
+		err = row.Scan(&maxkpm, &kappa, &minutes, &kpmdate)
 		if err != nil {
-			return -1, -1, -1, err
+			return -1, -1, -1, time.Now(), err
 		}
 	}
-	return maxkpm, kappa, minutes, nil
+	return maxkpm, kappa, minutes, kpmdate, nil
 }
 
 func queryDB(db *sql.DB) ([]Data, error) {
@@ -67,7 +68,9 @@ func queryDB(db *sql.DB) ([]Data, error) {
 		var maxkpm int
 		var kappa int
 		var minutes int
-		err = rows.Scan(&name, &viewers, &game, &logo, &status, &url, &currkpm, &maxkpm, &kappa, &minutes)
+		var date time.Time
+		err = rows.Scan(&name, &viewers, &game, &logo, &status, &url,
+			&currkpm, &maxkpm, &kappa, &minutes, &date)
 		if err != nil {
 			return nil, err
 		}
@@ -81,6 +84,7 @@ func queryDB(db *sql.DB) ([]Data, error) {
 		dat[i].MaxKpm = maxkpm
 		dat[i].Kappa = kappa
 		dat[i].Minutes = minutes
+		dat[i].MaxKpmDate = date.Format(time.RFC3339)
 		i++
 	}
 	CacheDB.Fresh = true
@@ -119,7 +123,7 @@ func updateDB(db *sql.DB, streamList chan *BotAction) error {
 	// grab db values before first request
 	for _, stream := range topStreams.Stream {
 		name := stream.Channel.DisplayName
-		MaxKPM[name], TotalKappa[name], Minutes[name], err = grabCounts(db, name)
+		MaxKPM[name], TotalKappa[name], Minutes[name], DateKPM[name], err = grabCounts(db, name)
 		if err != nil {
 			// TODO: error handling
 			log.Println(err)
@@ -178,7 +182,8 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 				currkpm	INTEGER,
 				maxkpm	INTEGER,
 				kappa	INTEGER,
-				minutes INTEGER
+				minutes INTEGER,
+				kpmdate TIMESTAMP
 			);`)
 		if err != nil {
 			return err
@@ -186,12 +191,13 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 
 		_, err = tx.Exec(`
 			INSERT INTO
-				newvals(name, viewers, game, logo, status, url, currkpm, maxkpm, kappa, minutes)
-				VALUES($3, $2, $1, $4, $5, $6, $7, $8, $9, $10);`,
+				newvals(name, viewers, game, logo, status, url, currkpm, maxkpm, kappa, minutes, kpmdate)
+				VALUES($3, $2, $1, $4, $5, $6, $7, $8, $9, $10, $11);`,
 			stream.Game, stream.Viewers,
 			streamName, stream.Channel.Logo,
 			stream.Channel.Status, stream.Channel.Url,
-			KPM[streamName], MaxKPM[streamName], TotalKappa[streamName], Minutes[streamName])
+			KPM[streamName], MaxKPM[streamName], TotalKappa[streamName],
+			Minutes[streamName], DateKPM[streamName])
 		if err != nil {
 			return err
 		}
@@ -227,6 +233,7 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 					maxkpm = newvals.maxkpm,
 					kappa = newvals.kappa,
 					minutes = newvals.minutes
+					kpmdate = newvals.kpmdate
 				FROM newvals
 				WHERE newvals.name = streams.name;
 			`)
@@ -235,6 +242,7 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 			return err
 		}
 
+		// if it's a new entry, use current time, don't input null
 		_, err = tx.Exec(`
 			INSERT INTO streams
 			SELECT
@@ -247,11 +255,12 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 				newvals.currkpm,
 				newvals.maxkpm,
 				newvals.minutes,
-				newvals.kappa
+				newvals.kappa,
+				$1
 			FROM newvals
 			LEFT OUTER JOIN streams ON (streams.name = newvals.name)
 			WHERE streams.name IS NULL;
-		`)
+		`, time.Now())
 		if err != nil {
 			return err
 		}
@@ -283,7 +292,8 @@ func openDB() (*sql.DB, error) {
 		currkpm INTEGER,
 		maxkpm 	INTEGER,
 		kappa 	INTEGER,
-		minutes	INTEGER);`)
+		minutes INTEGER,
+		kpmdate	TIMESTAMP);`)
 	if err != nil {
 		return nil, err
 	}

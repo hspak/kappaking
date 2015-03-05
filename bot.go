@@ -15,6 +15,7 @@ var MaxKPM map[string]int
 var KPM map[string]int
 var TotalKappa map[string]int
 var Minutes map[string]int
+var DateKPM map[string]time.Time
 
 func getPassword() string {
 	pass, err := ioutil.ReadFile("password")
@@ -85,7 +86,9 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 		for data := range kappaCounter {
 			KPM[data.Name] += data.Count
 			if KPM[data.Name] > MaxKPM[data.Name] {
+				kpmdate := time.Now()
 				MaxKPM[data.Name] = KPM[data.Name]
+				DateKPM[data.Name] = kpmdate
 			}
 			// fmt.Println("  Kappa update:", data.Name, " =>", KPM[data.Name])
 		}

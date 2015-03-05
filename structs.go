@@ -18,6 +18,7 @@ type Data struct {
 	Logo        string `json:"logo"`
 	Status      string `json:"status"`
 	Url         string `json:"url"`
+	MaxKpmDate  string `json:"maxkpm_date"`
 }
 
 type Wrapper struct {

@@ -1,6 +1,9 @@
 package main
 
-import "log"
+import (
+	"log"
+	"time"
+)
 
 // TODO: need a way to detect streams going offline for bot and fetching db
 
@@ -29,6 +32,7 @@ func main() {
 	CacheDB.Data = nil
 	KPM = make(map[string]int)
 	MaxKPM = make(map[string]int)
+	DateKPM = make(map[string]time.Time)
 	TotalKappa = make(map[string]int)
 	Minutes = make(map[string]int)
 
