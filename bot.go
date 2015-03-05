@@ -79,7 +79,9 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 
 			// try to disconnect completely instead of trying to reconnect
 			if !con.Connected() {
+				log.Println("Bot: manually reconnecting")
 				con.Disconnect()
+				time.Sleep(time.Second)
 				err := con.Connect("irc.twitch.tv:6667")
 				if err != nil {
 					log.Fatal(err)
