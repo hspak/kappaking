@@ -5,8 +5,6 @@ import (
 	"time"
 )
 
-// TODO: need a way to detect streams going offline for bot and fetching db
-
 // Non-terminal Goroutines:
 //    - http server
 //    - api call + db update    (5 minutes)
