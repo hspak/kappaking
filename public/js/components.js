@@ -20,6 +20,9 @@ var ChannelTable = React.createClass({
   },
   render: function() {
     var cells = [];
+    this.state.streams.sort(function(a, b) {
+      return parseInt(b.currkpm) - parseInt(a.currkpm);
+    });
     this.state.streams.forEach(function(stream) {
       if (stream.logo == "") {
         stream.logo = "http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_150x150.png";
