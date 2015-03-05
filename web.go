@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 )
 
 func apiHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {

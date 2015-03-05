@@ -33,6 +33,7 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 		log.Fatal(err)
 	}
 
+	// TODO: set all joinedChannels when disconnected
 	joinedChannels := make(map[string]bool)
 	go func() {
 		for action := range streamList {
@@ -76,17 +77,6 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 		go func() {
 			time.Sleep(time.Minute)
 			kappaCounter <- KappaData{Name: name, Count: -count}
-
-			// try to disconnect completely instead of trying to reconnect
-			if !con.Connected() {
-				log.Println("Bot: manually reconnecting")
-				con.Disconnect()
-				time.Sleep(time.Second)
-				err := con.Connect("irc.twitch.tv:6667")
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
 		}()
 	})
 
