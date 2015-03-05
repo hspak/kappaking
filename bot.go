@@ -95,7 +95,7 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 		for data := range kappaCounter {
 			KPM[data.Name] += data.Count
 			if KPM[data.Name] > MaxKPM[data.Name] {
-				kpmdate := time.Now()
+				kpmdate := time.Now().UTC()
 				MaxKPM[data.Name] = KPM[data.Name]
 				DateKPM[data.Name] = kpmdate
 			}

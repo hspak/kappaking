@@ -24,8 +24,14 @@ var ChannelTable = React.createClass({
       return parseInt(b.currkpm) - parseInt(a.currkpm);
     });
     this.state.streams.forEach(function(stream) {
+      var since = Math.round((Date.now() - Date.parse(stream.maxkpm_date))/60000);
       if (stream.logo == "") {
         stream.logo = "http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_150x150.png";
+      }
+      if (stream.maxkpm > 0) {
+        stream.maxkpm_date = since + "m ago";
+      } else {
+        stream.maxkpm_date = 0;
       }
       cells.push(<ChannelCell stream={stream} key={stream.display_name} />);
     });
@@ -50,6 +56,7 @@ var ChannelCell = React.createClass({
           minutes={this.props.stream.minutes}
           kappa={this.props.stream.kappa}
           maxkpm={this.props.stream.maxkpm}
+          date={this.props.stream.maxkpm_date}
           currkpm={this.props.stream.currkpm} />
       </div>
     );
@@ -75,6 +82,7 @@ var ChannelDynamic = React.createClass({
       <div className="channelDynamic">
         <div className="currKpm">KPM: {this.props.currkpm}</div>
         <div className="maxKpm">MAX KPM: {this.props.maxkpm}</div>
+        <div className="maxKpmDate">set: {this.props.date}</div>
         <div className="kappa">Kappa: {this.props.kappa}</div>
         <div className="minutes">Minutes Recorded: {this.props.minutes}</div>
       </div>

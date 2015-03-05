@@ -17,12 +17,12 @@ func grabCounts(db *sql.DB, name string) (int, int, int, time.Time, error) {
 	var minutes int
 	var kpmdate time.Time
 	if err != nil {
-		return -1, -1, -1, time.Now(), err
+		return -1, -1, -1, time.Now().UTC(), err
 	}
 	if row.Next() {
 		err = row.Scan(&maxkpm, &kappa, &minutes, &kpmdate)
 		if err != nil {
-			return -1, -1, -1, time.Now(), err
+			return -1, -1, -1, time.Now().UTC(), err
 		}
 	}
 	return maxkpm, kappa, minutes, kpmdate, nil
@@ -259,7 +259,7 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 			FROM newvals
 			LEFT OUTER JOIN streams ON (streams.name = newvals.name)
 			WHERE streams.name IS NULL;
-		`, time.Now())
+		`, time.Now().UTC())
 		if err != nil {
 			return err
 		}

@@ -45,3 +45,11 @@ html,body {
   width: 64px;
   height: 64px;
 }
+
+.maxKpm {
+  display: inline-block;
+}
+.maxKpmDate {
+  margin-left: 6px;
+  display: inline-block;
+}
