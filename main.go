@@ -27,6 +27,11 @@ func main() {
 
 	CacheDB.Fresh = false
 	CacheDB.Data = nil
+	KPM = make(map[string]int)
+	MaxKPM = make(map[string]int)
+	TotalKappa = make(map[string]int)
+	Minutes = make(map[string]int)
+
 	streamList := make(chan *BotAction, 25)
 
 	updateDB(db, streamList)

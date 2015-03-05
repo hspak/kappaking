@@ -14,6 +14,7 @@ import (
 var MaxKPM map[string]int
 var KPM map[string]int
 var TotalKappa map[string]int
+var Minutes map[string]int
 
 func getPassword() string {
 	pass, err := ioutil.ReadFile("password")
@@ -31,20 +32,20 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 		log.Fatal(err)
 	}
 
-	// I'm not sure if this has any effect
-	for _, stream := range LiveStreams {
-		con.Part("#" + stream)
-	}
-
+	joinedChannels := make(map[string]bool)
 	go func() {
 		for action := range streamList {
 			stream := strings.ToLower(action.Channel)
-			if action.Join {
+			joined, exist := joinedChannels[stream]
+			if (action.Join && !exist) || (action.Join && !joined) {
+				joinedChannels[stream] = true
+
 				// better slow than kicked
 				time.Sleep(time.Second * 2)
 				log.Println("Bot: joining", stream)
 				con.Join("#" + stream)
-			} else {
+			} else if !action.Join {
+				joinedChannels[stream] = false
 				log.Println("Bot: parting", stream)
 				con.Part("#" + stream)
 			}
@@ -56,10 +57,6 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 
 	// this buffer size is arbitrary
 	kappaCounter := make(chan KappaData, 128)
-	KPM = make(map[string]int)
-	MaxKPM = make(map[string]int)
-	TotalKappa = make(map[string]int)
-
 	con.AddCallback("PRIVMSG", func(e *irc.Event) {
 		count := strings.Count(e.Message(), "Kappa")
 		if count == 0 {
@@ -69,12 +66,6 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 		name := strings.ToLower(e.Arguments[0][1:])
 		if _, ok := KPM[name]; !ok {
 			KPM[name] = 0
-
-			// TODO: these might need special logic to pull from db
-			MaxKPM[name], TotalKappa[name], err = grabKappa(db, name)
-			if err != nil {
-				log.Println(err)
-			}
 		}
 
 		// fmt.Println("  Kappa add", name, "=>", count)
@@ -92,7 +83,6 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 	// use channels to avoid data hazard?
 	go func() {
 		for data := range kappaCounter {
-			// TODO: keep track of max KPM
 			KPM[data.Name] += data.Count
 			if KPM[data.Name] > MaxKPM[data.Name] {
 				MaxKPM[data.Name] = KPM[data.Name]

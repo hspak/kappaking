@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"log"
-	"strings"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -11,25 +10,25 @@ import (
 
 var CacheDB Cache
 
-func grabKappa(db *sql.DB, name string) (int, int, error) {
-	row, err := db.Query(`SELECT maxkpm, kappa FROM streams WHERE name=$1`, name)
-	maxkpm := 0
-	kappa := 0
+func grabCounts(db *sql.DB, name string) (int, int, int, error) {
+	row, err := db.Query(`SELECT maxkpm, kappa, minutes FROM streams WHERE name=$1`, name)
+	var maxkpm int
+	var kappa int
+	var minutes int
 	if err != nil {
-		return 0, 0, err
+		return -1, -1, -1, err
 	}
 	if row.Next() {
-		err = row.Scan(&maxkpm, &kappa)
+		err = row.Scan(&maxkpm, &kappa, &minutes)
 		if err != nil {
-			return 0, 0, err
+			return -1, -1, -1, err
 		}
 	}
-	return maxkpm, kappa, nil
+	return maxkpm, kappa, minutes, nil
 }
 
 func queryDB(db *sql.DB) ([]Data, error) {
 	if CacheDB.Fresh {
-		// log.Println("DB: returning cache")
 		for i, dat := range CacheDB.Data {
 			CacheDB.Data[i].CurrKpm = KPM[dat.DisplayName]
 			CacheDB.Data[i].MaxKpm = MaxKPM[dat.DisplayName]
@@ -67,7 +66,8 @@ func queryDB(db *sql.DB) ([]Data, error) {
 		var currkpm int
 		var maxkpm int
 		var kappa int
-		err = rows.Scan(&name, &viewers, &game, &logo, &status, &url, &currkpm, &maxkpm, &kappa)
+		var minutes int
+		err = rows.Scan(&name, &viewers, &game, &logo, &status, &url, &currkpm, &maxkpm, &kappa, &minutes)
 		if err != nil {
 			return nil, err
 		}
@@ -80,11 +80,11 @@ func queryDB(db *sql.DB) ([]Data, error) {
 		dat[i].CurrKpm = currkpm
 		dat[i].MaxKpm = maxkpm
 		dat[i].Kappa = kappa
+		dat[i].Minutes = minutes
 		i++
 	}
 	CacheDB.Fresh = true
 	CacheDB.Data = dat
-	// log.Println("DB: returning db")
 	return dat, nil
 }
 
@@ -110,9 +110,20 @@ func addChanList(streamList chan *BotAction) {
 }
 
 func updateDB(db *sql.DB, streamList chan *BotAction) error {
-	err := insertDB(db, getTopStreams(true), true)
+	topStreams := getTopStreams(true)
+	err := insertDB(db, topStreams, true)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	// grab db values before first request
+	for _, stream := range topStreams.Stream {
+		name := stream.Channel.DisplayName
+		MaxKPM[name], TotalKappa[name], Minutes[name], err = grabCounts(db, name)
+		if err != nil {
+			// TODO: error handling
+			log.Println(err)
+		}
 	}
 
 	// wait long enough for the first queryDB
@@ -146,7 +157,11 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 	}
 
 	for _, stream := range streams.Stream {
-		streamName := strings.ToLower(stream.Channel.DisplayName)
+		streamName := stream.Channel.DisplayName
+		if !first {
+			Minutes[streamName] += 5
+		}
+
 		tx, err := db.Begin()
 		if err != nil {
 			return err
@@ -162,7 +177,8 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 				url		VARCHAR(255),
 				currkpm	INTEGER,
 				maxkpm	INTEGER,
-				kappa	INTEGER
+				kappa	INTEGER,
+				minutes INTEGER
 			);`)
 		if err != nil {
 			return err
@@ -170,12 +186,12 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 
 		_, err = tx.Exec(`
 			INSERT INTO
-				newvals(name, viewers, game, logo, status, url, currkpm, maxkpm, kappa)
-				VALUES($3, $2, $1, $4, $5, $6, $7, $8, $9);`,
+				newvals(name, viewers, game, logo, status, url, currkpm, maxkpm, kappa, minutes)
+				VALUES($3, $2, $1, $4, $5, $6, $7, $8, $9, $10);`,
 			stream.Game, stream.Viewers,
 			streamName, stream.Channel.Logo,
 			stream.Channel.Status, stream.Channel.Url,
-			KPM[streamName], MaxKPM[streamName], TotalKappa[streamName])
+			KPM[streamName], MaxKPM[streamName], TotalKappa[streamName], Minutes[streamName])
 		if err != nil {
 			return err
 		}
@@ -209,7 +225,8 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 					status = newvals.status,
 					currkpm = newvals.currkpm,
 					maxkpm = newvals.maxkpm,
-					kappa = newvals.kappa
+					kappa = newvals.kappa,
+					minutes = newvals.minutes
 				FROM newvals
 				WHERE newvals.name = streams.name;
 			`)
@@ -229,6 +246,7 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 				newvals.url,
 				newvals.currkpm,
 				newvals.maxkpm,
+				newvals.minutes,
 				newvals.kappa
 			FROM newvals
 			LEFT OUTER JOIN streams ON (streams.name = newvals.name)
@@ -264,7 +282,8 @@ func openDB() (*sql.DB, error) {
 		url 	VARCHAR(255),
 		currkpm INTEGER,
 		maxkpm 	INTEGER,
-		kappa	INTEGER);`)
+		kappa 	INTEGER,
+		minutes	INTEGER);`)
 	if err != nil {
 		return nil, err
 	}

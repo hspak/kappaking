@@ -40,10 +40,11 @@ var ChannelCell = React.createClass({
       <div className="channelCell">
         <ChannelStatic
           displayName={this.props.stream.display_name}
-          logo={this.props.stream.logo} />
-        <ChannelDynamic
+          logo={this.props.stream.logo}
           game={this.props.stream.game}
-          viewers={this.props.stream.viewers}
+          viewers={this.props.stream.viewers} />
+        <ChannelDynamic
+          minutes={this.props.stream.minutes}
           kappa={this.props.stream.kappa}
           maxkpm={this.props.stream.maxkpm}
           currkpm={this.props.stream.currkpm} />
@@ -58,6 +59,8 @@ var ChannelStatic = React.createClass({
       <div className="channelStatic">
         <div className="displayName">{this.props.displayName}</div>
         <div className="channelLogo"><img src={this.props.logo}></img></div>
+        <div className="gameTitle">Game: {this.props.game}</div>
+        <div className="viewerCount">Viewer: {this.props.viewers}</div>
       </div>
     );
   }
@@ -67,11 +70,10 @@ var ChannelDynamic = React.createClass({
   render: function() {
     return (
       <div className="channelDynamic">
-        <div className="gameTitle">Game: {this.props.game}</div>
-        <div className="viewerCount">Viewer: {this.props.viewers}</div>
         <div className="currKpm">KPM: {this.props.currkpm}</div>
-        <div className="currKpm">MAX KPM: {this.props.maxkpm}</div>
-        <div className="currKpm">Kappa: {this.props.kappa}</div>
+        <div className="maxKpm">MAX KPM: {this.props.maxkpm}</div>
+        <div className="kappa">Kappa: {this.props.kappa}</div>
+        <div className="minutes">Minutes Recorded: {this.props.minutes}</div>
       </div>
     );
   }

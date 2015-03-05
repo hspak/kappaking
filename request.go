@@ -96,14 +96,14 @@ func getTopStreams(first bool) *Streams {
 		return nil
 	}
 
-	// TODO: think of a more efficient way, though its only 25 elements
 	if !first {
 		for i := 0; i < 25; i++ {
 			PrevStreams[i] = LiveStreams[i]
 		}
 	}
-	for i, d := range dat.Stream {
-		LiveStreams[i] = strings.ToLower(d.Channel.DisplayName)
+	for i, _ := range dat.Stream {
+		dat.Stream[i].Channel.DisplayName = strings.ToLower(dat.Stream[i].Channel.DisplayName)
+		LiveStreams[i] = dat.Stream[i].Channel.DisplayName
 	}
 	return dat
 }
