@@ -1,6 +1,28 @@
-Find a good way for the bot to join/part live channels
+Ordered by priority
 
-More things to keep track off:
-  - Total duration kappa's have been counted
+Backend:
+  Convert global variables to a cache interface
+  DB functions should be through an interface
 
-Possibly another table that keeps track of kappa's over time
+  Better error handling, especially when irc disconnects
+  Actually handle DB errors
+
+
+Frontend:
+  Sort by CurrKPM
+  Animate cells to represent new rankings
+  First place cell design
+  Overall design
+
+  Leaderboard pages
+  FAQ page
+  About page
+
+
+CURRENTLY BROKEN:
+  Sometimes unmarshalling json loses the url and status fields...
+
+
+Startup Process:
+  updateDB -> getTopStreams -> insertDB -> updateDB
+  api request -> requestJSON -> queryDB

@@ -71,7 +71,7 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 
 		// fmt.Println("  Kappa add", name, "=>", count)
 		kappaCounter <- KappaData{Name: name, Count: count}
-		TotalKappa[name] += 1
+		TotalKappa[name] += count
 
 		// subtract counts after minute
 		go func() {

@@ -45,7 +45,7 @@ func queryDB(db *sql.DB) ([]Data, error) {
 			$11,$12,$13,$14,$15,
 			$16,$17,$18,$19,$20,
 			$21,$22,$23,$24,$25)
-		ORDER BY viewers DESC`,
+		ORDER BY kappa DESC`,
 		LiveStreams[0], LiveStreams[1], LiveStreams[2], LiveStreams[3], LiveStreams[4],
 		LiveStreams[5], LiveStreams[6], LiveStreams[7], LiveStreams[8], LiveStreams[9],
 		LiveStreams[10], LiveStreams[11], LiveStreams[12], LiveStreams[13], LiveStreams[14],
@@ -130,14 +130,9 @@ func updateDB(db *sql.DB, streamList chan *BotAction) error {
 		}
 	}
 
-	// wait long enough for the first queryDB
-	// so that CacheDB is not empty
-	go func() {
-		time.Sleep(time.Second * 6)
-		for _, stream := range LiveStreams {
-			streamList <- &BotAction{Channel: stream, Join: true}
-		}
-	}()
+	for _, stream := range LiveStreams {
+		streamList <- &BotAction{Channel: stream, Join: true}
+	}
 
 	// poll twitch every 5 minute
 	ticker := time.NewTicker(time.Minute * 5)
@@ -192,9 +187,8 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 		_, err = tx.Exec(`
 			INSERT INTO
 				newvals(name, viewers, game, logo, status, url, currkpm, maxkpm, kappa, minutes, kpmdate)
-				VALUES($3, $2, $1, $4, $5, $6, $7, $8, $9, $10, $11);`,
-			stream.Game, stream.Viewers,
-			streamName, stream.Channel.Logo,
+				VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);`,
+			streamName, stream.Viewers, stream.Game, stream.Channel.Logo,
 			stream.Channel.Status, stream.Channel.Url,
 			KPM[streamName], MaxKPM[streamName], TotalKappa[streamName],
 			Minutes[streamName], DateKPM[streamName])
@@ -232,7 +226,7 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 					currkpm = newvals.currkpm,
 					maxkpm = newvals.maxkpm,
 					kappa = newvals.kappa,
-					minutes = newvals.minutes
+					minutes = newvals.minutes,
 					kpmdate = newvals.kpmdate
 				FROM newvals
 				WHERE newvals.name = streams.name;

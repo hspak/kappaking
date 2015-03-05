@@ -39,6 +39,7 @@ func main() {
 	streamList := make(chan *BotAction, 25)
 
 	updateDB(db, streamList)
+	time.Sleep(time.Second)
 	go serveWeb(db)
 	launchBot(db, streamList)
 }
