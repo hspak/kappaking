@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -17,13 +16,11 @@ func grabKappa(db *sql.DB, name string) (int, int, error) {
 	maxkpm := 0
 	kappa := 0
 	if err != nil {
-		fmt.Println("damn it")
 		return 0, 0, err
 	}
 	if row.Next() {
 		err = row.Scan(&maxkpm, &kappa)
 		if err != nil {
-			fmt.Println("fuck")
 			return 0, 0, err
 		}
 	}
@@ -91,29 +88,29 @@ func queryDB(db *sql.DB) ([]Data, error) {
 	return dat, nil
 }
 
-func deadStream(name string) (bool, int) {
-	for i, curr := range LiveStreams {
-		if name == curr {
-			fmt.Println("not stream", name)
-			return false, i
-		}
-	}
-	fmt.Println("dead stream", name)
-	return true, -1
-}
-
 func addChanList(streamList chan *BotAction) {
-	for i := 0; i < 25; i++ {
-		if dead, j := deadStream(PrevStreams[i]); dead {
-			streamList <- &BotAction{Channel: LiveStreams[j], Join: false}
-		} else {
-			streamList <- &BotAction{Channel: LiveStreams[i], Join: true}
+	// part dead channels
+	dead := true
+	for _, prev := range PrevStreams {
+		for _, curr := range LiveStreams {
+			// still alive
+			if prev == curr {
+				dead = false
+				break
+			}
 		}
+		if dead {
+			streamList <- &BotAction{Channel: prev, Join: false}
+		}
+		dead = true
+	}
+	for _, curr := range LiveStreams {
+		streamList <- &BotAction{Channel: curr, Join: true}
 	}
 }
 
 func updateDB(db *sql.DB, streamList chan *BotAction) error {
-	err := insertDB(db, getTopStreams(true))
+	err := insertDB(db, getTopStreams(true), true)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -131,7 +128,7 @@ func updateDB(db *sql.DB, streamList chan *BotAction) error {
 	ticker := time.NewTicker(time.Minute * 5)
 	go func() {
 		for _ = range ticker.C {
-			err = insertDB(db, getTopStreams(false))
+			err = insertDB(db, getTopStreams(false), false)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -142,7 +139,7 @@ func updateDB(db *sql.DB, streamList chan *BotAction) error {
 	return nil
 }
 
-func insertDB(db *sql.DB, streams *Streams) error {
+func insertDB(db *sql.DB, streams *Streams, first bool) error {
 	// no response from Twtich, no update
 	if streams == nil {
 		return nil
@@ -177,8 +174,8 @@ func insertDB(db *sql.DB, streams *Streams) error {
 				VALUES($3, $2, $1, $4, $5, $6, $7, $8, $9);`,
 			stream.Game, stream.Viewers,
 			streamName, stream.Channel.Logo,
-			stream.Channel.Status, stream.Channel.Url, KPM[streamName], MaxKPM[streamName], TotalKappa[streamName])
-		// TODO: maxkpm, kappa values
+			stream.Channel.Status, stream.Channel.Url,
+			KPM[streamName], MaxKPM[streamName], TotalKappa[streamName])
 		if err != nil {
 			return err
 		}
@@ -188,20 +185,35 @@ func insertDB(db *sql.DB, streams *Streams) error {
 			return err
 		}
 
-		_, err = tx.Exec(`
-			UPDATE streams
-			SET
-				viewers = newvals.viewers,
-				game = newvals.game,
-				logo = newvals.logo,
-				url = newvals.url,
-				status = newvals.status,
-				currkpm = newvals.currkpm,
-				maxkpm = newvals.maxkpm,
-				kappa = newvals.kappa
-			FROM newvals
-			WHERE newvals.name = streams.name;
-		`)
+		// don't overwrite kappa values on load
+		if first {
+			_, err = tx.Exec(`
+				UPDATE streams
+				SET
+					viewers = newvals.viewers,
+					game = newvals.game,
+					logo = newvals.logo,
+					url = newvals.url,
+					status = newvals.status
+				FROM newvals
+				WHERE newvals.name = streams.name;
+			`)
+		} else {
+			_, err = tx.Exec(`
+				UPDATE streams
+				SET
+					viewers = newvals.viewers,
+					game = newvals.game,
+					logo = newvals.logo,
+					url = newvals.url,
+					status = newvals.status,
+					currkpm = newvals.currkpm,
+					maxkpm = newvals.maxkpm,
+					kappa = newvals.kappa
+				FROM newvals
+				WHERE newvals.name = streams.name;
+			`)
+		}
 		if err != nil {
 			return err
 		}

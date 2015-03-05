@@ -123,8 +123,8 @@ func returnJSON(db *sql.DB) string {
 	d, err := queryDB(db)
 	if err != nil {
 		// TODO: do more
-		// return err.Error()
-		return "error"
+		return err.Error()
+		// return "error"
 	}
 	wrapper := &Wrapper{Streams: d}
 	out, err := JSONMarshal(&wrapper, true)

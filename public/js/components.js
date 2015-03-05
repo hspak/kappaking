@@ -21,6 +21,9 @@ var ChannelTable = React.createClass({
   render: function() {
     var cells = [];
     this.state.streams.forEach(function(stream) {
+      if (stream.logo == "") {
+        stream.logo = "http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_150x150.png";
+      }
       cells.push(<ChannelCell key={stream.name} stream={stream} />);
     });
     return(
