@@ -38,8 +38,9 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 	go func() {
 		for action := range streamList {
 			stream := strings.ToLower(action.Channel)
-			joined, exist := joinedChannels[stream]
-			if (action.Join && !exist) || (action.Join && !joined) {
+			_, exist := joinedChannels[stream]
+			// intentionally rejoining already joined channels so that it can still join properly after disconnects
+			if (action.Join && !exist) || (action.Join) {
 				joinedChannels[stream] = true
 
 				// better slow than kicked
@@ -54,6 +55,15 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 
 			// required, either I crash or get kicked without it
 			time.Sleep(time.Second)
+		}
+	}()
+
+	go func() {
+		for {
+			time.Sleep(time.Minute)
+			for name, _ := range joinedChannels {
+				Minutes[name] += 1
+			}
 		}
 	}()
 
@@ -77,6 +87,7 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 		go func() {
 			time.Sleep(time.Minute)
 			kappaCounter <- KappaData{Name: name, Count: -count}
+
 		}()
 	})
 
@@ -85,9 +96,8 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 		for data := range kappaCounter {
 			KPM[data.Name] += data.Count
 			if KPM[data.Name] > MaxKPM[data.Name] {
-				kpmdate := time.Now().UTC()
 				MaxKPM[data.Name] = KPM[data.Name]
-				DateKPM[data.Name] = kpmdate
+				DateKPM[data.Name] = time.Now().UTC()
 			}
 		}
 	}()

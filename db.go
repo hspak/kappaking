@@ -34,6 +34,7 @@ func queryDB(db *sql.DB) ([]Data, error) {
 			CacheDB.Data[i].CurrKpm = KPM[dat.DisplayName]
 			CacheDB.Data[i].MaxKpm = MaxKPM[dat.DisplayName]
 			CacheDB.Data[i].Kappa = TotalKappa[dat.DisplayName]
+			CacheDB.Data[i].Minutes = Minutes[dat.DisplayName]
 		}
 		return CacheDB.Data, nil
 	}
@@ -162,10 +163,6 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 
 	for _, stream := range streams.Stream {
 		streamName := stream.Channel.DisplayName
-		if !first {
-			Minutes[streamName] += 5
-		}
-
 		tx, err := db.Begin()
 		if err != nil {
 			return err
