@@ -35,6 +35,7 @@ func queryDB(db *sql.DB) ([]Data, error) {
 			CacheDB.Data[i].MaxKpm = MaxKPM[dat.DisplayName]
 			CacheDB.Data[i].Kappa = TotalKappa[dat.DisplayName]
 			CacheDB.Data[i].Minutes = Minutes[dat.DisplayName]
+			CacheDB.Data[i].MaxKpmDate = DateKPM[dat.DisplayName].Format(time.RFC3339)
 		}
 		return CacheDB.Data, nil
 	}

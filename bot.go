@@ -39,7 +39,8 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 		for action := range streamList {
 			stream := strings.ToLower(action.Channel)
 			_, exist := joinedChannels[stream]
-			// intentionally rejoining already joined channels so that it can still join properly after disconnects
+			// intentionally rejoining already joined channels
+			// so that it can still join properly after disconnects
 			if (action.Join && !exist) || (action.Join) {
 				joinedChannels[stream] = true
 

@@ -1,5 +1,19 @@
 /** @jsx React.DOM */
 
+function convertMinutes(minutes) {
+  if (minutes == 0) {
+    return "now";
+  } else if (minutes < 60) {
+    return minutes + "m ago";
+  } else if (minutes >= 60) {
+    return Math.round(minutes/60) + "h " + (minutes%60) + "m ago";
+  } else if (minutes > 1440) { // 60*24
+    return Math.round(minutes/1440) + "days and " + Math.round(minutes%1440/60) + "h ago";
+  } else if (minutes > 10080) { // 60*24*7
+    return Math.round(minutes/10080) + "weeks and " + Math.round(minutes%10080/1440) + "days ago";
+  }
+}
+
 var ChannelTable = React.createClass({
   mixins: [SetIntervalMixin],
   getInitialState: function() {
@@ -25,11 +39,12 @@ var ChannelTable = React.createClass({
     });
     this.state.streams.forEach(function(stream) {
       var since = Math.round((Date.now() - Date.parse(stream.maxkpm_date))/60000);
+      var sinceConvert = convertMinutes(since);
       if (stream.logo == "") {
         stream.logo = "http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_150x150.png";
       }
       if (stream.maxkpm > 0) {
-        stream.maxkpm_date = since + "m ago";
+        stream.maxkpm_date = sinceConvert;
       } else {
         stream.maxkpm_date = 0;
       }
