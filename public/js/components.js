@@ -1,7 +1,5 @@
 /** @jsx React.DOM */
 
-var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
-
 function convertMinutes(minutes) {
   if (minutes == 0) {
     return "now";
@@ -36,9 +34,12 @@ var ChannelTable = React.createClass({
   },
   render: function() {
     var cells = [];
+    var first = true;
+    var firstCell;
     this.state.streams.sort(function(a, b) {
       return parseInt(b.currkpm) - parseInt(a.currkpm);
     });
+
     this.state.streams.forEach(function(stream) {
       var since = Math.round((Date.now() - Date.parse(stream.maxkpm_date))/60000);
       var sinceConvert = convertMinutes(since);
@@ -50,34 +51,49 @@ var ChannelTable = React.createClass({
       } else {
         stream.maxkpm_date = 0;
       }
-      cells.push(<ChannelCell stream={stream} key={stream.display_name} />);
+      if (first) {
+        first = false;
+        firstCell = <ChannelCell stream={stream} key={stream.display_name} />;
+      } else {
+        cells.push(<ChannelCell stream={stream} key={stream.display_name} />);
+      }
     });
     return(
-      <div className="channelTable">
-        <ReactCSSTransitionGroup transitionName="cells">
-          {cells}
-        </ReactCSSTransitionGroup>
-      </div>
+      React.createElement("div", {className: "firstCell"},
+        firstCell,
+        React.createElement("div", {className: "channelTable"},
+          cells
+        )
+      )
     );
   }
 });
 
 var ChannelCell = React.createClass({
   render: function() {
+    var channelType;
+    var contentStatic = <ChannelStatic
+            displayName={this.props.stream.display_name}
+            logo={this.props.stream.logo} />;
+    var contentDynamic =
+          <ChannelDynamic
+            game={this.props.stream.game}
+            viewers={this.props.stream.viewers}
+            minutes={this.props.stream.minutes}
+            kappa={this.props.stream.kappa}
+            maxkpm={this.props.stream.maxkpm}
+            date={this.props.stream.maxkpm_date}
+            currkpm={this.props.stream.currkpm} />;
+
+    channelType = <div key={this.props.key} className="channelCell">
+      {contentStatic}
+      {contentDynamic}
+      </div>;
+
     return (
-      <div key={this.props.key} className="channelCell">
-        <ChannelStatic
-          displayName={this.props.stream.display_name}
-          logo={this.props.stream.logo} />
-        <ChannelDynamic
-          game={this.props.stream.game}
-          viewers={this.props.stream.viewers}
-          minutes={this.props.stream.minutes}
-          kappa={this.props.stream.kappa}
-          maxkpm={this.props.stream.maxkpm}
-          date={this.props.stream.maxkpm_date}
-          currkpm={this.props.stream.currkpm} />
-      </div>
+      <a href={this.props.stream.url}>
+        {channelType}
+      </a>
     );
   }
 });

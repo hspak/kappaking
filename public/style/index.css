@@ -14,6 +14,12 @@ html,body {
   height: 100%;
   margin: 0;
   padding: 0;
+  background-color: #f2f2f2;
+  font-family: 'Lato', 'Varela Round', sans-serif;
+}
+
+a {
+  text-decoration: none;
 }
 
 .container {
@@ -30,11 +36,23 @@ html,body {
   display: inline-block;
 }
 
+.firstCell > div {
+  width: 600px;
+  background-color: #123;
+  display: inline-block;
+  margin: 16px;
+}
+
 .channelCell {
   display: inline-block;
   width: 400px;
   margin: 16px;
-  background-color: #eeeeee;
+  background-color: #bbb;
+}
+
+.displayName {
+  font-weight: bold;
+  font-size: 110%;
 }
 
 .channelLogo {
@@ -42,8 +60,9 @@ html,body {
 }
 
 .channelLogo img {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
+  padding: 8px;
 }
 
 .maxKpm {
@@ -65,10 +84,14 @@ html,body {
 }
 
 .channelDynamic {
+  font-size: 80%;
   display: inline-block;
   max-width: 200px;
+  color: #333;
+  margin-bottom: 18px;
 }
 
 .maxKpmDate {
   font-size: 50%;
 }
+
