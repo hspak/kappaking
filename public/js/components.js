@@ -52,14 +52,14 @@ var ChannelTable = React.createClass({
         stream.maxkpm_date = 0;
       }
       if (first) {
+        firstCell = <ChannelCell first={first} stream={stream} key={stream.display_name} />;
         first = false;
-        firstCell = <ChannelCell stream={stream} key={stream.display_name} />;
       } else {
-        cells.push(<ChannelCell stream={stream} key={stream.display_name} />);
+        cells.push(<ChannelCell first={first} stream={stream} key={stream.display_name} />);
       }
     });
     return(
-      React.createElement("div", {className: "firstCell"},
+      React.createElement("div", {className: "cells"},
         firstCell,
         React.createElement("div", {className: "channelTable"},
           cells
@@ -85,10 +85,17 @@ var ChannelCell = React.createClass({
             date={this.props.stream.maxkpm_date}
             currkpm={this.props.stream.currkpm} />;
 
-    channelType = <div key={this.props.key} className="channelCell">
-      {contentStatic}
-      {contentDynamic}
-      </div>;
+    if (this.props.first) {
+      channelType = <div key={this.props.key} className="channelCellFirst">
+        {contentStatic}
+        {contentDynamic}
+        </div>;
+    } else {
+      channelType = <div key={this.props.key} className="channelCell">
+        {contentStatic}
+        {contentDynamic}
+        </div>;
+    }
 
     return (
       <a href={this.props.stream.url}>
