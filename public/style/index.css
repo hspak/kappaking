@@ -42,8 +42,8 @@ html,body {
 }
 
 .channelLogo img {
-  width: 64px;
-  height: 64px;
+  width: 100px;
+  height: 100px;
 }
 
 .maxKpm {
@@ -52,4 +52,23 @@ html,body {
 .maxKpmDate {
   margin-left: 6px;
   display: inline-block;
+}
+
+.channelStatic {
+  display: inline-block;
+  max-width: 200px;
+  padding: 10px;
+}
+
+.displayName {
+  margin-bottom: 6px;
+}
+
+.channelDynamic {
+  display: inline-block;
+  max-width: 200px;
+}
+
+.maxKpmDate {
+  font-size: 50%;
 }

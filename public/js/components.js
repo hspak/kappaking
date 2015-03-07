@@ -1,5 +1,7 @@
 /** @jsx React.DOM */
 
+var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
+
 function convertMinutes(minutes) {
   if (minutes == 0) {
     return "now";
@@ -52,7 +54,9 @@ var ChannelTable = React.createClass({
     });
     return(
       <div className="channelTable">
-        {cells}
+        <ReactCSSTransitionGroup transitionName="cells">
+          {cells}
+        </ReactCSSTransitionGroup>
       </div>
     );
   }
@@ -64,10 +68,10 @@ var ChannelCell = React.createClass({
       <div key={this.props.key} className="channelCell">
         <ChannelStatic
           displayName={this.props.stream.display_name}
-          logo={this.props.stream.logo}
-          game={this.props.stream.game}
-          viewers={this.props.stream.viewers} />
+          logo={this.props.stream.logo} />
         <ChannelDynamic
+          game={this.props.stream.game}
+          viewers={this.props.stream.viewers}
           minutes={this.props.stream.minutes}
           kappa={this.props.stream.kappa}
           maxkpm={this.props.stream.maxkpm}
@@ -84,8 +88,6 @@ var ChannelStatic = React.createClass({
       <div className="channelStatic">
         <div className="displayName">{this.props.displayName}</div>
         <div className="channelLogo"><img src={this.props.logo}></img></div>
-        <div className="gameTitle">Game: {this.props.game}</div>
-        <div className="viewerCount">Viewer: {this.props.viewers}</div>
       </div>
     );
   }
@@ -95,6 +97,8 @@ var ChannelDynamic = React.createClass({
   render: function() {
     return (
       <div className="channelDynamic">
+        <div className="gameTitle">Game: {this.props.game}</div>
+        <div className="viewerCount">Viewer: {this.props.viewers}</div>
         <div className="currKpm">KPM: {this.props.currkpm}</div>
         <div className="maxKpm">MAX KPM: {this.props.maxkpm}</div>
         <div className="maxKpmDate">set: {this.props.date}</div>
