@@ -117,6 +117,9 @@ func addChanList(streamList chan *BotAction) {
 
 func updateDB(db *sql.DB, streamList chan *BotAction) error {
 	topStreams := getTopStreams(true)
+	if topStreams == nil {
+		log.Fatal("first response from twitch cannot be nil")
+	}
 	err := insertDB(db, topStreams, true)
 	if err != nil {
 		log.Fatal(err)
