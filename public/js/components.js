@@ -102,12 +102,12 @@ var ChannelCell = React.createClass({
 
     if (this.props.first) {
       channelType = <div key={this.props.key} className="firstCrowns">
-        <img src="/crown.png"></img>
+        <img src="/img/crown.png"></img>
         <div className="channelCellFirst">
         {contentStatic}
         {contentDynamic}
         </div>
-        <img src="/crown.png"></img>
+        <img src="/img/crown.png"></img>
         </div>;
     } else {
       channelType = <div key={this.props.key} className="channelCell">

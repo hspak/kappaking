@@ -1,0 +1,39 @@
+html,body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #6744a7;
+  font-family: "Lato", sans-serif;
+}
+a {
+  text-decoration: none;
+  color: #444;
+}
+
+.header {
+  float:left;
+  padding-left: 10px;
+  font-family: "Varela Round", sans-serif;
+  font-size: 300%;
+  font-weight: bold;  
+}
+.header > img {
+  display: inline-block;
+  height: 100px;
+}
+.title {
+  transform: translateY(-50%);
+  display: inline-block;
+  vertical-align: center;
+  color: #000;
+}
+
+.links {
+  float: right;
+  margin-top: 10px;
+  text-align: right;
+}
+.links > a {
+  color: #b3a1d3;
+  margin-right: 15px;
+}
