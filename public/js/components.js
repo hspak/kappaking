@@ -54,7 +54,7 @@ var ChannelTable = React.createClass({
       if (stream.maxkpm > 0) {
         stream.maxkpm_date = sinceConvert;
       } else {
-        stream.maxkpm_date = 0;
+        stream.maxkpm_date = "never";
       }
 
       if (stream.minutes > 0) {
