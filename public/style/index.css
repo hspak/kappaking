@@ -22,32 +22,79 @@ a {
   text-decoration: none;
 }
 
+.header {
+  width: 100%;
+  height: 50vh;
+  background-color: #123;
+  text-align: center;
+}
+
 .container {
   margin: 0 auto;
   min-width: 450px;
   width: 1300px;
 }
 
+.blank {
+  height: 10px;
+}
+.links {
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.links > a {
+  margin-right: 15px;
+}
+
+.banner {
+  display: inline-block;
+  vertical-align: middle;
+}
+.banner > img {
+  display: inline-block;
+  vertical-align: middle;
+}
+.banner > div {
+  vertical-align: middle;
+  display: inline-block;
+  font-size: 600%;
+  font-weight: bold;
+}
+
 #content {
   display: inline-block;
 }
 
+.cells {
+  width: 100%;
+  text-align: center;
+}
+
+.cells > a {
+  width: 100% !important;
+  height: 50vh;
+  display: inline-block;
+  background-color: #123;
+}
+
 .channelTable {
   display: inline-block;
+  text-align: center;
 }
 
 .channelCellFirst {
   display: inline-block;
   width: 600px;
-  background-color: #123;
-  margin-left: auto;
-  margin-right: auto;
+  background-color: #f2f2f2;
+  text-align: left;
 }
 .channelCell {
   display: inline-block;
   width: 400px;
   margin: 16px;
   background-color: #bbb;
+  text-align: left;
 }
 
 .displayName {

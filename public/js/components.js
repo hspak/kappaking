@@ -40,6 +40,7 @@ var ChannelTable = React.createClass({
       return parseInt(b.currkpm) - parseInt(a.currkpm);
     });
 
+    var i = 1;
     this.state.streams.forEach(function(stream) {
       var since = Math.round((Date.now() - Date.parse(stream.maxkpm_date))/60000);
       var sinceConvert = convertMinutes(since);
@@ -57,6 +58,8 @@ var ChannelTable = React.createClass({
       } else {
         cells.push(<ChannelCell first={first} stream={stream} key={stream.display_name} />);
       }
+      stream.display_name = i + ': ' + stream.display_name;
+      i += 1;
     });
     return(
       React.createElement("div", {className: "cells"},
