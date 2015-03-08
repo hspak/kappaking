@@ -21,7 +21,7 @@ var ChannelTable = React.createClass({
   },
   componentDidMount: function() {
     this.dataUpdate();
-    this.setInterval(this.dataUpdate, 5000);
+    // this.setInterval(this.dataUpdate, 5000);
   },
   dataUpdate: function() {
     var xhr = new XMLHttpRequest();
@@ -59,7 +59,11 @@ var ChannelTable = React.createClass({
         stream.maxkpm_date = 0;
       }
 
-      avg = (stream.kappa / stream.minutes).toFixed(2);
+      if (stream.minutes > 0) {
+        avg = (stream.kappa / stream.minutes).toFixed(2);
+      } else {
+        avg = 0;
+      }
       if (first) {
         firstCell = <ChannelCell first={first} avg={avg} stream={stream} key={stream.display_name} />;
         first = false;
@@ -98,9 +102,13 @@ var ChannelCell = React.createClass({
             currkpm={this.props.stream.currkpm} />;
 
     if (this.props.first) {
-      channelType = <div key={this.props.key} className="channelCellFirst">
+      channelType = <div key={this.props.key} className="firstCrowns">
+        <img src="/crown.png"></img>
+        <div className="channelCellFirst">
         {contentStatic}
         {contentDynamic}
+        </div>
+        <img src="/crown.png"></img>
         </div>;
     } else {
       channelType = <div key={this.props.key} className="channelCell">
