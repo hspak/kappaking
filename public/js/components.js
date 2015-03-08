@@ -21,7 +21,7 @@ var ChannelTable = React.createClass({
   },
   componentDidMount: function() {
     this.dataUpdate();
-    // this.setInterval(this.dataUpdate, 5000);
+    this.setInterval(this.dataUpdate, 5000);
   },
   dataUpdate: function() {
     var xhr = new XMLHttpRequest();

@@ -9,14 +9,21 @@
     width: 400px !important;
   }
   .firstCrowns > img {
-    display: none !important;
+    width: 50px !important;
+    height: 50px !important;
   }
   .banner > div {
     font-size: 300% !important;
   }
   .banner > img {
     width: 100px !important;
-    width: 100px !important;
+    height: 100px !important;
+  }
+}
+
+@media only screen and (max-width: 550px) {
+  .firstCrowns > img {
+    display: none !important;
   }
 }
 
@@ -89,6 +96,7 @@ a {
   height: 50vh;
   display: inline-block;
   background-color: #6744a7;
+  /* min-height: 200px; */
 }
 
 .channelTable {
@@ -105,6 +113,7 @@ a {
   display: inline;
   width: 150px;
   height: 150px;
+  vertical-align: bottom;
 }
  
 .channelCellFirst {
