@@ -1,3 +1,8 @@
 # KappaKing
 ### Kappa Leaderboard for Twitch
-![Kappa](kappa.png)
+
+## URL
+[KappaKing](http://kappaking.com)
+
+## License
+MIT
