@@ -20,6 +20,99 @@
       </div>
     </a>
     <div class="container">
+      <div class="block">
+        <div class="question">
+          <span style="font-weight:bold">Q:</span>
+          What is Kappa?
+        </div>
+        <div class="answer">
+          <span style="font-weight:bold">A:</span>
+          <img src="/img/kappa.png">
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="question">
+          <span style="font-weight:bold">Q:</span>
+          What is KPM?
+        </div>
+        <div class="answer">
+          <span style="font-weight:bold">A:</span>
+          Kappas per minute.
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="question">
+          <span style="font-weight:bold">Q:</span>
+          How is KPM calculated?
+        </div>
+        <div class="answer">
+          <span style="font-weight:bold">A:</span>
+          It is a rolling average. A kappa count only lasts for 1 minute.
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="question">
+          <span style="font-weight:bold">Q:</span>
+          How does it count Kappas?
+        </div>
+        <div class="answer">
+          <span style="font-weight:bold">A:</span>
+          Twitch chat is built on top of IRC. It uses a bot to join/part the
+          relevant channels.
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="question">
+          <span style="font-weight:bold">Q:</span>
+          How often does the site update?
+        </div>
+        <div class="answer">
+          <span style="font-weight:bold">A:</span>
+          Every 5 seconds.
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="question">
+          <span style="font-weight:bold">Q:</span>
+          OMG my Kappas aren't being counted.
+        </div>
+        <div class="answer">
+          <span style="font-weight:bold">A:</span>
+          Sorry, the IRC connection isn't always best and the bot may currently
+          be disconnected from your chat.
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="question">
+          <span style="font-weight:bold">Q:</span>
+          How is the average calculated?
+        </div>
+        <div class="answer">
+          <span style="font-weight:bold">A:</span>
+          It tracks the total number of Kappas since recording over the total
+          duration it has recorded.
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="question">
+          <span style="font-weight:bold">Q:</span>
+          Is there an API?
+        </div>
+        <div class="answer">
+          <span style="font-weight:bold">A:</span>
+          There is only one at the moment. Once the leaderboards are built,
+          there will be more. Currently, there is:
+          <code class="api">/api/get/data</code>
+          which is what the site uses.
+        </div>
+      </div>
     </div>
   </body>
 </html>
