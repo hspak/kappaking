@@ -46,9 +46,9 @@ type Streams struct {
 			// Game        string `json:"game"`
 			Logo string `json:"logo"`
 			// Mature                       bool        `json:"mature"`
-			Status string `json:"status"`
+			// Status string `json:"status"`
 			// Partner                      bool        `json:"partner"`
-			Url string `json:"url"`
+			// Url string `json:"url"`
 			// VideoBanner                  string      `json:"video_banner"`
 			// Id                           int         `json:"_id"`
 			// Name                         string      `json:"name"`
