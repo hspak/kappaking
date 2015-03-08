@@ -58,6 +58,7 @@ a {
 .banner > div {
   vertical-align: middle;
   display: inline-block;
+  font-family: 'Varela Round', sans-serif;
   font-size: 600%;
   font-weight: bold;
 }
@@ -85,10 +86,14 @@ a {
 
 .channelCellFirst {
   display: inline-block;
-  width: 600px;
+  width: 400px;
   background-color: #f2f2f2;
   text-align: left;
 }
+
+.channelCellFirst > div {
+}
+
 .channelCell {
   display: inline-block;
   width: 400px;
@@ -102,27 +107,34 @@ a {
   font-size: 110%;
 }
 
-.channelLogo {
-  /* display: inline-block; */
-}
-
 .channelLogo img {
-  width: 120px;
-  height: 120px;
+  width: 150px;
+  height: 150px;
   padding: 8px;
 }
 
-.maxKpm {
-  display: inline-block;
+.kpm > div {
+  vertical-align: top;
+  text-align: right;
+  font-family: 'Varela Round', sans-serif;
+  font-size: 150%;
 }
+
 .maxKpmDate {
-  margin-left: 6px;
-  display: inline-block;
+  font-size: 80% !important;
+}
+.maxKpm {
+  font-size: 80% !important;
+}
+
+.minutes {
+  margin-bottom: 6px;
 }
 
 .channelStatic {
+  vertical-align: middle;
   display: inline-block;
-  max-width: 200px;
+  width: 175px;
   padding: 10px;
 }
 
@@ -133,12 +145,11 @@ a {
 .channelDynamic {
   font-size: 80%;
   display: inline-block;
-  max-width: 200px;
+  width: 190px;
   color: #333;
-  margin-bottom: 18px;
+  padding-bottom: 20px;
+  vertical-align: middle;
+  /* margin-top: 35px; */
 }
 
-.maxKpmDate {
-  font-size: 50%;
-}
 

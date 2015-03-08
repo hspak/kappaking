@@ -8,9 +8,9 @@ function convertMinutes(minutes) {
   } else if (minutes < 1440) { // 60*24
     return Math.round(minutes/60) + "h " + (minutes%60) + "m ago";
   } else if (minutes < 10080) { // 60*24*7
-    return Math.round(minutes/1440) + "days and " + Math.round(minutes%1440/60) + "h ago";
+    return Math.round(minutes/1440) + "d ago";
   } else {
-    return Math.round(minutes/10080) + "weeks and " + Math.round(minutes%10080/1440) + "days ago";
+    return Math.round(minutes/10080) + "w ago";
   }
 }
 
@@ -58,7 +58,7 @@ var ChannelTable = React.createClass({
       } else {
         cells.push(<ChannelCell first={first} stream={stream} key={stream.display_name} />);
       }
-      stream.display_name = i + ': ' + stream.display_name;
+      stream.display_name = i + ' ' + stream.display_name;
       i += 1;
     });
     return(
@@ -123,13 +123,17 @@ var ChannelDynamic = React.createClass({
   render: function() {
     return (
       <div className="channelDynamic">
-        <div className="gameTitle">Game: {this.props.game}</div>
-        <div className="viewerCount">Viewer: {this.props.viewers}</div>
-        <div className="currKpm">KPM: {this.props.currkpm}</div>
-        <div className="maxKpm">MAX KPM: {this.props.maxkpm}</div>
-        <div className="maxKpmDate">set: {this.props.date}</div>
-        <div className="kappa">Kappa: {this.props.kappa}</div>
-        <div className="minutes">Minutes Recorded: {this.props.minutes}</div>
+        <div className="kpm">
+          <div className="currKpm">KPM: {this.props.currkpm}</div>
+          <div className="maxKpm">MAX: {this.props.maxkpm}</div>
+          <div className="maxKpmDate">set: {this.props.date}</div>
+        </div>
+        <div className="nonkpm">
+          <div className="kappa">Kappa: {this.props.kappa}</div>
+          <div className="minutes">Minutes Recorded: {this.props.minutes}</div>
+          <div className="gameTitle">Game: {this.props.game}</div>
+          <div className="viewerCount">Viewer: {this.props.viewers}</div>
+        </div>
       </div>
     );
   }
