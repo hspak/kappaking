@@ -36,6 +36,7 @@ var ChannelTable = React.createClass({
     var cells = [];
     var first = true;
     var firstCell;
+    var avg = 0;
     this.state.streams.sort(function(a, b) {
       return parseInt(b.currkpm) - parseInt(a.currkpm);
     });
@@ -47,17 +48,25 @@ var ChannelTable = React.createClass({
       if (stream.logo == "") {
         stream.logo = "http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_150x150.png";
       }
+
+      if (stream.url == "") {
+        stream.url = "www.twitch.tv/" + stream.display_name;
+      }
+
       if (stream.maxkpm > 0) {
         stream.maxkpm_date = sinceConvert;
       } else {
         stream.maxkpm_date = 0;
       }
+
+      avg = (stream.kappa / stream.minutes).toFixed(2);
       if (first) {
-        firstCell = <ChannelCell first={first} stream={stream} key={stream.display_name} />;
+        firstCell = <ChannelCell first={first} avg={avg} stream={stream} key={stream.display_name} />;
         first = false;
       } else {
-        cells.push(<ChannelCell first={first} stream={stream} key={stream.display_name} />);
+        cells.push(<ChannelCell first={first} avg={avg} stream={stream} key={stream.display_name} />);
       }
+
       stream.display_name = i + ' ' + stream.display_name;
       i += 1;
     });
@@ -82,7 +91,7 @@ var ChannelCell = React.createClass({
           <ChannelDynamic
             game={this.props.stream.game}
             viewers={this.props.stream.viewers}
-            minutes={this.props.stream.minutes}
+            avg={this.props.avg}
             kappa={this.props.stream.kappa}
             maxkpm={this.props.stream.maxkpm}
             date={this.props.stream.maxkpm_date}
@@ -125,13 +134,13 @@ var ChannelDynamic = React.createClass({
       <div className="channelDynamic">
         <div className="kpm">
           <div className="currKpm">KPM: {this.props.currkpm}</div>
+          <div className="avgKpm">AVG: {this.props.avg}</div>
           <div className="maxKpm">MAX: {this.props.maxkpm}</div>
           <div className="maxKpmDate">set: {this.props.date}</div>
         </div>
         <div className="nonkpm">
           <div className="kappa">Kappa: {this.props.kappa}</div>
-          <div className="minutes">Minutes Recorded: {this.props.minutes}</div>
-          <div className="gameTitle">Game: {this.props.game}</div>
+          <div className="gameTitle">{this.props.game}</div>
           <div className="viewerCount">Viewer: {this.props.viewers}</div>
         </div>
       </div>
