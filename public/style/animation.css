@@ -1,8 +1,0 @@
-.cells-enter {
-  opacity: 0.01;
-  transition: opacity 0.5s ease-in;
-}
-
-.cells-enter.cells-enter-active {
-  opacity: 1;
-}

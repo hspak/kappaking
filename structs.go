@@ -12,8 +12,6 @@ type Data struct {
 	Game        string `json:"game"`
 	Viewers     int    `json:"viewers"`
 	Logo        string `json:"logo"`
-	Status      string `json:"status"`
-	Url         string `json:"url"`
 	CurrKpm     int    `json:"currkpm"`
 	MaxKpm      int    `json:"maxkpm"`
 	MaxKpmDate  string `json:"maxkpm_date"`

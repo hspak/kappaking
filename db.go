@@ -62,7 +62,6 @@ func queryDB(db *sql.DB) ([]Data, error) {
 	for rows.Next() {
 		var name string
 		var game string
-		var url string
 		var logo string
 		var viewers int
 		var currkpm int
@@ -70,14 +69,13 @@ func queryDB(db *sql.DB) ([]Data, error) {
 		var kappa int
 		var minutes int
 		var date time.Time
-		err = rows.Scan(&name, &viewers, &game, &logo, &url,
+		err = rows.Scan(&name, &viewers, &game, &logo,
 			&currkpm, &maxkpm, &kappa, &minutes, &date)
 		if err != nil {
 			return nil, err
 		}
 		dat[i].DisplayName = name
 		dat[i].Game = game
-		dat[i].Url = url
 		dat[i].Logo = logo
 		dat[i].Viewers = viewers
 		dat[i].CurrKpm = currkpm
@@ -176,7 +174,6 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 				viewers INTEGER,
 				game	VARCHAR(255),
 				logo	VARCHAR(255),
-				url		VARCHAR(255),
 				currkpm	INTEGER,
 				maxkpm	INTEGER,
 				kappa	INTEGER,
@@ -189,9 +186,9 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 
 		_, err = tx.Exec(`
 			INSERT INTO
-				newvals(name, viewers, game, logo, url, currkpm, maxkpm, kappa, minutes, kpmdate)
-				VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);`,
-			streamName, stream.Viewers, stream.Game, stream.Channel.Logo, stream.Channel.Url,
+				newvals(name, viewers, game, logo, currkpm, maxkpm, kappa, minutes, kpmdate)
+				VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
+			streamName, stream.Viewers, stream.Game, stream.Channel.Logo,
 			KPM[streamName], MaxKPM[streamName], TotalKappa[streamName],
 			Minutes[streamName], DateKPM[streamName])
 		if err != nil {
@@ -210,8 +207,7 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 				SET
 					viewers = newvals.viewers,
 					game = newvals.game,
-					logo = newvals.logo,
-					url = newvals.url,
+					logo = newvals.logo
 				FROM newvals
 				WHERE newvals.name = streams.name;
 			`)
@@ -222,7 +218,6 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 					viewers = newvals.viewers,
 					game = newvals.game,
 					logo = newvals.logo,
-					url = newvals.url,
 					currkpm = newvals.currkpm,
 					maxkpm = newvals.maxkpm,
 					kappa = newvals.kappa,
@@ -244,7 +239,6 @@ func insertDB(db *sql.DB, streams *Streams, first bool) error {
 				newvals.viewers,
 				newvals.game,
 				newvals.logo,
-				newvals.url,
 				newvals.currkpm,
 				newvals.maxkpm,
 				newvals.minutes,
@@ -280,7 +274,6 @@ func openDB() (*sql.DB, error) {
 		viewers INTEGER,
 		game	VARCHAR(255),
 		logo	VARCHAR(255),
-		url 	VARCHAR(255),
 		currkpm INTEGER,
 		maxkpm 	INTEGER,
 		kappa 	INTEGER,

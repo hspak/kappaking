@@ -42,16 +42,14 @@ var ChannelTable = React.createClass({
     });
 
     var i = 1;
+    var url = "";
     this.state.streams.forEach(function(stream) {
       var since = Math.round((Date.now() - Date.parse(stream.maxkpm_date))/60000);
       var sinceConvert = convertMinutes(since);
       if (stream.logo == "") {
         stream.logo = "http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_150x150.png";
       }
-
-      if (stream.url == "") {
-        stream.url = "www.twitch.tv/" + stream.display_name;
-      }
+      url = "www.twitch.tv/" + stream.display_name;
 
       if (stream.maxkpm > 0) {
         stream.maxkpm_date = sinceConvert;
@@ -65,10 +63,10 @@ var ChannelTable = React.createClass({
         avg = 0;
       }
       if (first) {
-        firstCell = <ChannelCell first={first} avg={avg} stream={stream} key={stream.display_name} />;
+        firstCell = <ChannelCell first={first} url={url} avg={avg} stream={stream} key={stream.display_name} />;
         first = false;
       } else {
-        cells.push(<ChannelCell first={first} avg={avg} stream={stream} key={stream.display_name} />);
+        cells.push(<ChannelCell first={first} url={url} avg={avg} stream={stream} key={stream.display_name} />);
       }
 
       stream.display_name = i + ' ' + stream.display_name;
@@ -77,6 +75,7 @@ var ChannelTable = React.createClass({
     return(
       React.createElement("div", {className: "cells"},
         firstCell,
+        React.createElement("div", {className: "bar"}),
         React.createElement("div", {className: "channelTable"},
           cells
         )
@@ -118,7 +117,7 @@ var ChannelCell = React.createClass({
     }
 
     return (
-      <a href={this.props.stream.url}>
+      <a href={this.props.url}>
         {channelType}
       </a>
     );

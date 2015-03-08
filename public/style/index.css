@@ -44,13 +44,17 @@ a {
   height: 50vh;
   text-align: center;
   background-color: #6744a7;
-  /* background-image: url("/tophalf.png"); */
 }
 
 .container {
   margin: 0 auto;
   min-width: 450px;
   width: 1300px;
+}
+
+.bar {
+  background-color: #b3a1d3;
+  height: 1px;
 }
 
 .blank {
@@ -115,7 +119,7 @@ a {
   height: 150px;
   vertical-align: bottom;
 }
- 
+
 .channelCellFirst {
   margin-left: 10px;
   margin-right: 10px;
