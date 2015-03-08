@@ -49,7 +49,7 @@ var ChannelTable = React.createClass({
       if (stream.logo == "") {
         stream.logo = "http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_150x150.png";
       }
-      url = "www.twitch.tv/" + stream.display_name;
+      url = "http://www.twitch.tv/" + stream.display_name;
 
       if (stream.maxkpm > 0) {
         stream.maxkpm_date = sinceConvert;
