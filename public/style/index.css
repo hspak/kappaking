@@ -127,6 +127,32 @@ a {
   width: 400px;
   background-color: #b3a1d3;
   text-align: left;
+
+  -moz-animation-name: borderFade;
+  -moz-animation-iteration-count: infinite;
+  -moz-animation-timing-function: linear;
+  -moz-animation-duration: 5.0s;
+  -webkit-animation-name: borderFade;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: linear;
+  -webkit-animation-duration: 5.0s;
+  animation-name: borderFade;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  animation-duration: 5.0s;
+}
+
+@-moz-keyframes borderFade {
+    0% { box-shadow:inset 0px 0px 0px 0px rgba(189, 171, 221, 1.0); }
+    100% { box-shadow:inset 0px 216px 0px 0px rgba(255, 255, 255, 0.2); }
+}
+@-webkit-keyframes borderFade {
+    0% { box-shadow:inset 0px 0px 0px 0px rgba(189, 171, 221, 1.0); }
+    100% { box-shadow:inset 0px 216px 0px 0px rgba(255, 255, 255, 0.2); }
+}
+@keyframes borderFade {
+    0% { box-shadow:inset 0px 0px 0px 0px rgba(189, 171, 221, 1.0); }
+    100% { box-shadow:inset 0px 216px 0px 0px rgba(255, 255, 255, 0.2); }
 }
 
 .channelCell {
@@ -197,5 +223,4 @@ a {
   margin-top: 30px;
   vertical-align: bottom;
 }
-
 

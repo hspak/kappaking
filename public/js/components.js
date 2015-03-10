@@ -63,7 +63,8 @@ var ChannelTable = React.createClass({
         avg = 0;
       }
       if (first) {
-        firstCell = <ChannelCell first={first} url={url} avg={avg} stream={stream} key={stream.display_name} />;
+        firstCell =
+          <ChannelCell first={first} url={url} avg={avg} stream={stream} key={stream.display_name} />;
         first = false;
       } else {
         cells.push(<ChannelCell first={first} url={url} avg={avg} stream={stream} key={stream.display_name} />);
