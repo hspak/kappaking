@@ -83,6 +83,7 @@ func getTopStreams(first bool) *Streams {
 		log.Println("info: no response from api")
 		return nil
 	}
+	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
