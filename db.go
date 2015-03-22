@@ -56,6 +56,7 @@ func queryDB(db *sql.DB) ([]Data, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	i := 0
 	dat := make([]Data, 25)
