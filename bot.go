@@ -9,88 +9,157 @@ import (
 	"github.com/hspak/go-ircevent"
 )
 
-func getPassword() string {
+type KappaData struct {
+	Name  string
+	Count int
+}
+
+type Bot struct {
+	db             *DB
+	joinedChannels map[string]bool
+	conn           *irc.Connection
+	kappaCounter   chan KappaData
+	stop           bool
+}
+
+func NewBot(database *DB) *Bot {
+	return &Bot{
+		db:             database,
+		joinedChannels: make(map[string]bool),
+		conn:           nil,
+		kappaCounter:   make(chan KappaData, 128),
+		stop:           false}
+}
+
+func (b *Bot) connect(nick, user, server string) {
+	b.conn = irc.IRC(nick, user)
+	b.setPassword()
+	err := b.conn.Connect(server)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (b *Bot) setPassword() {
 	pass, err := ioutil.ReadFile("password")
 	if err != nil {
 		log.Fatal("could not open password file")
 	}
-	return string(pass)
+	b.conn.Password = string(pass)
 }
 
-func launchBot(db *DB) {
-	con := irc.IRC("kappakingbot", "kappakingbot")
-	con.Password = getPassword()
-	err := con.Connect("irc.twitch.tv:6667")
-	if err != nil {
-		log.Fatal(err)
+func (b *Bot) joinChannels() {
+	for action := range b.db.streamList {
+		if b.stop {
+			return
+		}
+		stream := strings.ToLower(action.Channel)
+		_, exist := b.joinedChannels[stream]
+		// intentionally rejoining already joined channels
+		// so that it can still join properly after disconnects
+		if (action.Join && !exist) || (action.Join) {
+			b.joinedChannels[stream] = true
+
+			// better slow than kicked
+			time.Sleep(time.Second * 2)
+			log.Println("Bot: joining", stream)
+			b.conn.Join("#" + stream)
+		} else if !action.Join {
+			b.joinedChannels[stream] = false
+			log.Println("Bot: parting", stream)
+			b.conn.Part("#" + stream)
+		}
+
+		// required, either I crash or get kicked without it
+		time.Sleep(time.Second)
 	}
+}
 
-	// TODO: set all joinedChannels when disconnected
-	joinedChannels := make(map[string]bool)
-	go func() {
-		for action := range db.streamList {
-			stream := strings.ToLower(action.Channel)
-			_, exist := joinedChannels[stream]
-			// intentionally rejoining already joined channels
-			// so that it can still join properly after disconnects
-			if (action.Join && !exist) || (action.Join) {
-				joinedChannels[stream] = true
-
-				// better slow than kicked
-				time.Sleep(time.Second * 2)
-				log.Println("Bot: joining", stream)
-				con.Join("#" + stream)
-			} else if !action.Join {
-				joinedChannels[stream] = false
-				log.Println("Bot: parting", stream)
-				con.Part("#" + stream)
-			}
-
-			// required, either I crash or get kicked without it
-			time.Sleep(time.Second)
+func (b *Bot) countMinutes() {
+	for {
+		if b.stop {
+			return
 		}
-	}()
-
-	go func() {
-		for {
-			time.Sleep(time.Minute)
-			for name, _ := range joinedChannels {
-				db.cache.Store.Minutes[name] += 1
-			}
+		time.Sleep(time.Minute)
+		for name, _ := range b.joinedChannels {
+			b.db.cache.Store.Minutes[name] += 1
 		}
-	}()
+	}
+}
 
+func (b *Bot) updateCounts() {
+	for data := range b.kappaCounter {
+		if b.stop {
+			return
+		}
+		b.db.cache.KPM[data.Name] += data.Count
+		if b.db.cache.KPM[data.Name] > b.db.cache.Store.MaxKPM[data.Name] {
+			b.db.cache.Store.MaxKPM[data.Name] = b.db.cache.KPM[data.Name]
+			b.db.cache.Store.DateKPM[data.Name] = time.Now().UTC()
+		}
+	}
+}
+
+func (b *Bot) trackKappas() {
 	// this buffer size is arbitrary
-	kappaCounter := make(chan KappaData, 128)
-	con.AddCallback("PRIVMSG", func(e *irc.Event) {
+	b.conn.AddCallback("PRIVMSG", func(e *irc.Event) {
 		count := strings.Count(e.Message(), "Kappa")
 		if count == 0 {
 			return
 		}
 
 		name := strings.ToLower(e.Arguments[0][1:])
-		if _, ok := db.cache.KPM[name]; !ok {
-			db.cache.KPM[name] = 0
+		if _, ok := b.db.cache.KPM[name]; !ok {
+			b.db.cache.KPM[name] = 0
 		}
 
-		kappaCounter <- KappaData{Name: name, Count: count}
-		db.cache.Store.TotalKappa[name] += count
+		b.kappaCounter <- KappaData{Name: name, Count: count}
+		b.db.cache.Store.TotalKappa[name] += count
 
 		// subtract counts after minute
 		go func() {
+			if b.stop {
+				return
+			}
 			time.Sleep(time.Minute)
-			kappaCounter <- KappaData{Name: name, Count: -count}
+			b.kappaCounter <- KappaData{Name: name, Count: -count}
 		}()
 	})
+}
 
-	go func() {
-		for data := range kappaCounter {
-			db.cache.KPM[data.Name] += data.Count
-			if db.cache.KPM[data.Name] > db.cache.Store.MaxKPM[data.Name] {
-				db.cache.Store.MaxKPM[data.Name] = db.cache.KPM[data.Name]
-				db.cache.Store.DateKPM[data.Name] = time.Now().UTC()
-			}
+func (b *Bot) ircKeepAlive() {
+	errChan := b.conn.ErrorChan()
+	for b.conn.Connected() {
+		err := <-errChan
+		if !b.conn.Connected() {
+			break
 		}
-	}()
-	con.Loop()
+		b.conn.Log.Printf("Error, disconnected: %s\n", err)
+		b.restartIrc()
+	}
+}
+
+func (b *Bot) restartIrc() {
+	log.Println("restarting...")
+	b.conn.ClearCallback("PRIVMSG")
+	b.conn.Disconnect()
+	b.stop = true
+	time.Sleep(time.Minute)
+	log.Println("restarted...")
+	b.stop = false
+	b.start()
+}
+
+func (b *Bot) start() {
+	b.connect("kappakingbot", "kappakingbot", "irc.twitch.tv:6667")
+	go b.countMinutes()
+	go b.joinChannels()
+	go b.updateCounts()
+	b.trackKappas()
+}
+
+func launchBot(db *DB) {
+	bot := NewBot(db)
+	bot.start()
+	bot.ircKeepAlive()
 }

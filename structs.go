@@ -1,11 +1,5 @@
 package main
 
-// bot
-type KappaData struct {
-	Name  string
-	Count int
-}
-
 // request
 type Data struct {
 	DisplayName string `json:"display_name"`
