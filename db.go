@@ -18,6 +18,7 @@ type DB struct {
 	streamList chan *BotAction
 	cache      *Cache
 	currData   []Data
+	ready      bool
 }
 
 func NewDB() (*DB, error) {
@@ -43,6 +44,7 @@ func NewDB() (*DB, error) {
 		streamList: make(chan *BotAction, 25),
 		cache:      NewCache(),
 		currData:   make([]Data, 25),
+		ready:      false,
 	}, nil
 }
 
@@ -57,7 +59,7 @@ func (db *DB) StartUpdateLoop() {
 	}
 	for _, stream := range topStreams.Stream {
 		name := stream.Channel.DisplayName
-		db.SetInitalCurrData(name)
+		db.SetupCache(name)
 		if err != nil {
 			log.Println(err)
 		}
@@ -65,6 +67,7 @@ func (db *DB) StartUpdateLoop() {
 	for _, stream := range LiveStreams {
 		db.streamList <- &BotAction{Channel: stream, Join: true}
 	}
+	db.ready = true
 	db.updateLoop()
 }
 
@@ -89,7 +92,7 @@ func (db *DB) updateLoop() error {
 	return nil
 }
 
-func (db *DB) SetInitalCurrData(name string) error {
+func (db *DB) SetupCache(name string) error {
 	query := `SELECT maxkpm, kappa, minutes, kpmdate FROM streams WHERE name=$1`
 	row, err := db.conn.Query(query, name)
 	if err != nil {
@@ -108,6 +111,11 @@ func (db *DB) SetInitalCurrData(name string) error {
 }
 
 func (db *DB) Query() ([]Data, error) {
+	// wait for the first twitch request before allowing queries
+	for !db.ready {
+		time.Sleep(time.Second)
+	}
+
 	if db.cache.Fresh {
 		for i, dat := range db.currData {
 			db.currData[i].CurrKpm = db.cache.KPM[dat.DisplayName]
@@ -126,11 +134,18 @@ func (db *DB) Query() ([]Data, error) {
 		$16,$17,$18,$19,$20,
 		$21,$22,$23,$24,$25) ORDER BY kappa DESC`
 	rows, err := db.conn.Query(query,
-		LiveStreams[0], LiveStreams[1], LiveStreams[2], LiveStreams[3], LiveStreams[4],
-		LiveStreams[5], LiveStreams[6], LiveStreams[7], LiveStreams[8], LiveStreams[9],
-		LiveStreams[10], LiveStreams[11], LiveStreams[12], LiveStreams[13], LiveStreams[14],
-		LiveStreams[15], LiveStreams[16], LiveStreams[17], LiveStreams[18], LiveStreams[19],
-		LiveStreams[20], LiveStreams[21], LiveStreams[22], LiveStreams[23], LiveStreams[24])
+		LiveStreams[0], LiveStreams[1],
+		LiveStreams[2], LiveStreams[3],
+		LiveStreams[4], LiveStreams[5],
+		LiveStreams[6], LiveStreams[7],
+		LiveStreams[8], LiveStreams[9],
+		LiveStreams[10], LiveStreams[11],
+		LiveStreams[12], LiveStreams[13],
+		LiveStreams[14], LiveStreams[15],
+		LiveStreams[16], LiveStreams[17],
+		LiveStreams[18], LiveStreams[19],
+		LiveStreams[20], LiveStreams[21],
+		LiveStreams[22], LiveStreams[23], LiveStreams[24])
 	if err != nil {
 		return nil, err
 	}
