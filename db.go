@@ -21,7 +21,7 @@ type DB struct {
 }
 
 func NewDB() (*DB, error) {
-	db, err := sql.Open("postgres", "user=kappaking dbname=kappaking sslmode=disable")
+	db, err := sql.Open("postgres", "user=hsp dbname=kappaking sslmode=disable")
 	if err != nil {
 		return nil, err
 	}

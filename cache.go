@@ -20,6 +20,7 @@ func NewCache() *Cache {
 		KPM: make(map[string]int),
 		Store: Stored{
 			MaxKPM:     make(map[string]int),
+			DateKPM:    make(map[string]time.Time),
 			TotalKappa: make(map[string]int),
 			Minutes:    make(map[string]int),
 		},
