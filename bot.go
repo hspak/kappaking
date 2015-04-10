@@ -17,7 +17,7 @@ func getPassword() string {
 	return string(pass)
 }
 
-func launchBot(db DB) {
+func launchBot(db *DB) {
 	con := irc.IRC("kappakingbot", "kappakingbot")
 	con.Password = getPassword()
 	err := con.Connect("irc.twitch.tv:6667")
@@ -28,7 +28,7 @@ func launchBot(db DB) {
 	// TODO: set all joinedChannels when disconnected
 	joinedChannels := make(map[string]bool)
 	go func() {
-		for action := range streamList {
+		for action := range db.streamList {
 			stream := strings.ToLower(action.Channel)
 			_, exist := joinedChannels[stream]
 			// intentionally rejoining already joined channels
@@ -55,7 +55,7 @@ func launchBot(db DB) {
 		for {
 			time.Sleep(time.Minute)
 			for name, _ := range joinedChannels {
-				Minutes[name] += 1
+				db.cache.Store.Minutes[name] += 1
 			}
 		}
 	}()
@@ -69,27 +69,26 @@ func launchBot(db DB) {
 		}
 
 		name := strings.ToLower(e.Arguments[0][1:])
-		if _, ok := KPM[name]; !ok {
-			KPM[name] = 0
+		if _, ok := db.cache.KPM[name]; !ok {
+			db.cache.KPM[name] = 0
 		}
 
 		kappaCounter <- KappaData{Name: name, Count: count}
-		TotalKappa[name] += count
+		db.cache.Store.TotalKappa[name] += count
 
 		// subtract counts after minute
 		go func() {
 			time.Sleep(time.Minute)
 			kappaCounter <- KappaData{Name: name, Count: -count}
-
 		}()
 	})
 
 	go func() {
 		for data := range kappaCounter {
-			KPM[data.Name] += data.Count
-			if KPM[data.Name] > MaxKPM[data.Name] {
-				MaxKPM[data.Name] = KPM[data.Name]
-				DateKPM[data.Name] = time.Now().UTC()
+			db.cache.KPM[data.Name] += data.Count
+			if db.cache.KPM[data.Name] > db.cache.Store.MaxKPM[data.Name] {
+				db.cache.Store.MaxKPM[data.Name] = db.cache.KPM[data.Name]
+				db.cache.Store.DateKPM[data.Name] = time.Now().UTC()
 			}
 		}
 	}()

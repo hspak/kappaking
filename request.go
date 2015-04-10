@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"database/sql"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -120,12 +119,11 @@ func JSONMarshal(v interface{}, safeEncoding bool) ([]byte, error) {
 	return b, err
 }
 
-func returnJSON(db *sql.DB) string {
-	d, err := queryDB(db)
+func returnJSON(db *DB) string {
+	d, err := db.Query()
 	if err != nil {
 		// TODO: do more
 		return err.Error()
-		// return "error"
 	}
 	wrapper := &Wrapper{Streams: d}
 	out, err := JSONMarshal(&wrapper, true)

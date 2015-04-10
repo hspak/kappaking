@@ -96,10 +96,10 @@ func (db *DB) SetInitalCurrData(name string) error {
 		return err
 	}
 	if row.Next() {
-		err = row.Scan(&db.cache.store.maxKPM,
-			&db.cache.store.totalKappa,
-			&db.cache.store.minutes,
-			&db.cache.store.dateKPM)
+		err = row.Scan(&db.cache.Store.MaxKPM,
+			&db.cache.Store.TotalKappa,
+			&db.cache.Store.Minutes,
+			&db.cache.Store.DateKPM)
 		if err != nil {
 			return err
 		}
@@ -110,11 +110,11 @@ func (db *DB) SetInitalCurrData(name string) error {
 func (db *DB) Query() ([]Data, error) {
 	if db.cache.Fresh {
 		for i, dat := range db.currData {
-			db.currData[i].CurrKpm = db.cache.kpm[dat.DisplayName]
-			db.currData[i].MaxKpm = db.cache.store.maxKPM[dat.DisplayName]
-			db.currData[i].Kappa = db.cache.store.totalKappa[dat.DisplayName]
-			db.currData[i].Minutes = db.cache.store.minutes[dat.DisplayName]
-			db.currData[i].MaxKpmDate = db.cache.store.dateKPM[dat.DisplayName].Format(time.RFC3339)
+			db.currData[i].CurrKpm = db.cache.KPM[dat.DisplayName]
+			db.currData[i].MaxKpm = db.cache.Store.MaxKPM[dat.DisplayName]
+			db.currData[i].Kappa = db.cache.Store.TotalKappa[dat.DisplayName]
+			db.currData[i].Minutes = db.cache.Store.Minutes[dat.DisplayName]
+			db.currData[i].MaxKpmDate = db.cache.Store.DateKPM[dat.DisplayName].Format(time.RFC3339)
 		}
 		return db.currData, nil
 	}
@@ -211,8 +211,10 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 				newvals(name, viewers, game, logo, maxkpm, kappa, minutes, kpmdate)
 				VALUES($1, $2, $3, $4, $5, $6, $7, $8);`,
 			streamName, stream.Viewers, stream.Game, stream.Channel.Logo,
-			MaxKPM[streamName], TotalKappa[streamName],
-			Minutes[streamName], DateKPM[streamName])
+			db.cache.Store.MaxKPM[streamName],
+			db.cache.Store.TotalKappa[streamName],
+			db.cache.Store.Minutes[streamName],
+			db.cache.Store.DateKPM[streamName])
 		if err != nil {
 			return err
 		}
