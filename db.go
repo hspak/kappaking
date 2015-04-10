@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"time"
 
@@ -54,16 +53,16 @@ func (db *DB) StartUpdateLoop() {
 	if topStreams == nil {
 		log.Fatal("first response from twitch cannot be nil")
 	}
-	err := db.Insert(topStreams, true)
-	if err != nil {
-		log.Fatal(err)
-	}
 	for _, stream := range topStreams.Stream {
 		name := stream.Channel.DisplayName
-		db.SetupCache(name)
+		err := db.SetupCache(name)
 		if err != nil {
 			log.Println(err)
 		}
+	}
+	err := db.Insert(topStreams, true)
+	if err != nil {
+		log.Fatal(err)
 	}
 	for _, stream := range LiveStreams {
 		db.streamList <- &BotAction{Channel: stream, Join: true}
@@ -99,19 +98,20 @@ func (db *DB) SetupCache(name string) error {
 	if err != nil {
 		return err
 	}
+	var max int
+	var tot int
+	var min int
+	var date time.Time
 	if row.Next() {
-		err = row.Scan(&db.cache.Store.MaxKPM,
-			&db.cache.Store.TotalKappa,
-			&db.cache.Store.Minutes,
-			&db.cache.Store.DateKPM)
+		err = row.Scan(&max, &tot, &min, &date)
 		if err != nil {
 			return err
 		}
+		db.cache.Store.MaxKPM[name] = max
+		db.cache.Store.TotalKappa[name] = tot
+		db.cache.Store.Minutes[name] = min
+		db.cache.Store.DateKPM[name] = date
 	}
-	fmt.Println("Cache MaxKPM:", db.cache.Store.MaxKPM)
-	fmt.Println("Cache TotalKappa:", db.cache.Store.TotalKappa)
-	fmt.Println("Cache Minute:", db.cache.Store.Minutes)
-	fmt.Println("Cache DateKPM:", db.cache.Store.DateKPM)
 	return nil
 }
 
