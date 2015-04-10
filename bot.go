@@ -1,11 +1,12 @@
 package main
 
 import (
-	"go-ircevent"
 	"io/ioutil"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/thoj/go-ircevent"
 )
 
 type KappaData struct {
