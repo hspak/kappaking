@@ -1,9 +1,6 @@
 package main
 
-import (
-	"log"
-	"time"
-)
+import "log"
 
 // Non-terminal Goroutines:
 //    - http server
@@ -13,31 +10,14 @@ import (
 //    - kappa subtract          (1 minute)
 //    - kappa update            (channel blocked)
 
-type BotAction struct {
-	Channel string
-	Join    bool
-}
-
 func main() {
-	// defer profile.Start(profile.CPUProfile).Stop()
-	db, err := openDB()
+	db, err := NewDB()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
+	defer db.conn.Close()
 
-	CacheDB.Fresh = false
-	CacheDB.Data = nil
-	KPM = make(map[string]int)
-	MaxKPM = make(map[string]int)
-	DateKPM = make(map[string]time.Time)
-	TotalKappa = make(map[string]int)
-	Minutes = make(map[string]int)
-
-	streamList := make(chan *BotAction, 25)
-
-	updateDB(db, streamList)
-	time.Sleep(time.Second)
-	go serveWeb(db)
-	launchBot(db, streamList)
+	db.StartUpdateLoop()
+	go launchBot(db)
+	serveWeb(db)
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -9,13 +8,6 @@ import (
 
 	"github.com/hspak/go-ircevent"
 )
-
-// TODO: should probably create a struct with an interface for this data
-var MaxKPM map[string]int
-var KPM map[string]int
-var TotalKappa map[string]int
-var Minutes map[string]int
-var DateKPM map[string]time.Time
 
 func getPassword() string {
 	pass, err := ioutil.ReadFile("password")
@@ -25,7 +17,7 @@ func getPassword() string {
 	return string(pass)
 }
 
-func launchBot(db *sql.DB, streamList chan *BotAction) {
+func launchBot(db DB) {
 	con := irc.IRC("kappakingbot", "kappakingbot")
 	con.Password = getPassword()
 	err := con.Connect("irc.twitch.tv:6667")
@@ -92,7 +84,6 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 		}()
 	})
 
-	// use channels to avoid data hazard?
 	go func() {
 		for data := range kappaCounter {
 			KPM[data.Name] += data.Count
@@ -102,6 +93,5 @@ func launchBot(db *sql.DB, streamList chan *BotAction) {
 			}
 		}
 	}()
-
 	con.Loop()
 }

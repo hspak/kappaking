@@ -22,9 +22,3 @@ type Data struct {
 type Wrapper struct {
 	Streams []Data
 }
-
-// db
-type Cache struct {
-	Fresh bool
-	Data  []Data
-}
