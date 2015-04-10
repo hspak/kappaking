@@ -218,8 +218,8 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 				viewers INTEGER,
 				game	VARCHAR(255),
 				logo	VARCHAR(255),
-				maxkpm	INTEGER,
-				kappa	INTEGER,
+				maxkpmt INTEGER,
+				kappat  INTEGER,
 				minutes INTEGER,
 				kpmdate TIMESTAMP);`)
 		if err != nil {
@@ -228,7 +228,7 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 
 		_, err = tx.Exec(`
 			INSERT INTO
-				newvals(name, viewers, game, logo, maxkpm, kappa, minutes, kpmdate)
+				newvals(name, viewers, game, logo, maxkpmt, kappat, minutes, kpmdate)
 				VALUES($1, $2, $3, $4, $5, $6, $7, $8);`,
 			streamName, stream.Viewers, stream.Game, stream.Channel.Logo,
 			db.cache.Store.MaxKPM[streamName],
@@ -262,12 +262,22 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 					viewers = newvals.viewers,
 					game    = newvals.game,
 					logo    = newvals.logo,
-					maxkpm  = newvals.maxkpm,
-					kappa   = newvals.kappa,
 					minutes = newvals.minutes,
 					kpmdate = newvals.kpmdate
 				FROM newvals
 				WHERE newvals.name = streams.name;
+			`)
+			_, err = tx.Exec(`
+				UPDATE streams
+				SET maxkpm = newvals.maxkpmt
+				FROM newvals
+				WHERE newvals.name = streams.name AND newvals.maxkpmt > maxkpm;
+			`)
+			_, err = tx.Exec(`
+				UPDATE streams
+				SET kappa = newvals.kappat
+				FROM newvals
+				WHERE newvals.name = streams.name AND newvals.kappat > kappa;
 			`)
 		}
 		if err != nil {
@@ -282,9 +292,9 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 				newvals.viewers,
 				newvals.game,
 				newvals.logo,
-				newvals.maxkpm,
+				newvals.maxkpmt,
 				newvals.minutes,
-				newvals.kappa,
+				newvals.kappat,
 				$1
 			FROM newvals
 			LEFT OUTER JOIN streams ON (streams.name = newvals.name)
