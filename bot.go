@@ -1,12 +1,11 @@
 package main
 
 import (
+	"go-ircevent"
 	"io/ioutil"
 	"log"
 	"strings"
 	"time"
-
-	"github.com/hspak/go-ircevent"
 )
 
 type KappaData struct {
@@ -19,7 +18,6 @@ type Bot struct {
 	joinedChannels map[string]bool
 	conn           *irc.Connection
 	kappaCounter   chan KappaData
-	stop           bool
 }
 
 func NewBot(database *DB) *Bot {
@@ -27,8 +25,7 @@ func NewBot(database *DB) *Bot {
 		db:             database,
 		joinedChannels: make(map[string]bool),
 		conn:           nil,
-		kappaCounter:   make(chan KappaData, 128),
-		stop:           false}
+		kappaCounter:   make(chan KappaData, 128)}
 }
 
 func (b *Bot) connect(nick, user, server string) {
@@ -50,18 +47,12 @@ func (b *Bot) setPassword() {
 
 func (b *Bot) joinChannels() {
 	for action := range b.db.streamList {
-		if b.stop {
-			return
-		}
 		stream := strings.ToLower(action.Channel)
 		_, exist := b.joinedChannels[stream]
 		// intentionally rejoining already joined channels
 		// so that it can still join properly after disconnects
 		if (action.Join && !exist) || (action.Join) {
 			b.joinedChannels[stream] = true
-
-			// better slow than kicked
-			time.Sleep(time.Second * 2)
 			log.Println("Bot: joining", stream)
 			b.conn.Join("#" + stream)
 		} else if !action.Join {
@@ -71,15 +62,12 @@ func (b *Bot) joinChannels() {
 		}
 
 		// required, either I crash or get kicked without it
-		time.Sleep(time.Second)
+		time.Sleep(time.Millisecond * 100)
 	}
 }
 
 func (b *Bot) countMinutes() {
 	for {
-		if b.stop {
-			return
-		}
 		time.Sleep(time.Minute)
 		for name, _ := range b.joinedChannels {
 			b.db.cache.Store.Minutes[name] += 1
@@ -89,9 +77,6 @@ func (b *Bot) countMinutes() {
 
 func (b *Bot) updateCounts() {
 	for data := range b.kappaCounter {
-		if b.stop {
-			return
-		}
 		b.db.cache.KPM[data.Name] += data.Count
 		if b.db.cache.KPM[data.Name] > b.db.cache.Store.MaxKPM[data.Name] {
 			b.db.cache.Store.MaxKPM[data.Name] = b.db.cache.KPM[data.Name]
@@ -118,36 +103,10 @@ func (b *Bot) trackKappas() {
 
 		// subtract counts after minute
 		go func() {
-			if b.stop {
-				return
-			}
 			time.Sleep(time.Minute)
 			b.kappaCounter <- KappaData{Name: name, Count: -count}
 		}()
 	})
-}
-
-func (b *Bot) ircKeepAlive() {
-	errChan := b.conn.ErrorChan()
-	for b.conn.Connected() {
-		err := <-errChan
-		if !b.conn.Connected() {
-			break
-		}
-		b.conn.Log.Printf("Error, disconnected: %s\n", err)
-		b.restartIrc()
-	}
-}
-
-func (b *Bot) restartIrc() {
-	log.Println("restarting...")
-	b.conn.ClearCallback("PRIVMSG")
-	b.conn.Disconnect()
-	b.stop = true
-	time.Sleep(time.Minute)
-	log.Println("restarted...")
-	b.stop = false
-	b.start()
 }
 
 func (b *Bot) start() {
@@ -161,5 +120,5 @@ func (b *Bot) start() {
 func launchBot(db *DB) {
 	bot := NewBot(db)
 	bot.start()
-	bot.ircKeepAlive()
+	bot.conn.Loop()
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 
@@ -73,7 +74,7 @@ func (db *DB) StartUpdateLoop() {
 
 func (db *DB) updateLoop() error {
 	// poll twitch every 5 minute
-	ticker := time.NewTicker(time.Minute * 5)
+	ticker := time.NewTicker(time.Minute)
 	go func() {
 		for _ = range ticker.C {
 			topStreams := getTopStreams(false)
@@ -107,6 +108,10 @@ func (db *DB) SetupCache(name string) error {
 			return err
 		}
 	}
+	fmt.Println("Cache MaxKPM:", db.cache.Store.MaxKPM)
+	fmt.Println("Cache TotalKappa:", db.cache.Store.TotalKappa)
+	fmt.Println("Cache Minute:", db.cache.Store.Minutes)
+	fmt.Println("Cache DateKPM:", db.cache.Store.DateKPM)
 	return nil
 }
 

@@ -105,6 +105,7 @@ func getTopStreams(first bool) *Streams {
 		dat.Stream[i].Channel.DisplayName = strings.ToLower(dat.Stream[i].Channel.DisplayName)
 		LiveStreams[i] = dat.Stream[i].Channel.DisplayName
 	}
+	log.Println("==> new wave")
 	return dat
 }
 
