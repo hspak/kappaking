@@ -87,7 +87,6 @@ func (b *Bot) updateCounts() {
 }
 
 func (b *Bot) trackKappas() {
-	// this buffer size is arbitrary
 	b.conn.AddCallback("PRIVMSG", func(e *irc.Event) {
 		count := strings.Count(e.Message(), "Kappa")
 		if count == 0 {
