@@ -48,6 +48,7 @@ var ChannelTable = React.createClass({
       } else {
         avg = 0;
       }
+
       if (first) {
         firstCell =
           <ChannelCell first={first} url={url} avg={avg} stream={stream} key={stream.display_name} />;
@@ -74,15 +75,6 @@ var ChannelTable = React.createClass({
   }
 });
 
-var Header = React.createClass({
-  render: function() {
-    return (
-      <div>
-        Header
-      </div>
-    );
-  }
-});
 
 var ChannelCell = React.createClass({
   render: function() {

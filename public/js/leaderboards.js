@@ -16,7 +16,7 @@ var Leaderboards = React.createClass({
 var KappaBoard = React.createClass({
   render: function() {
     return (
-      <p>KappaBoard</p>
+      <div>KappaBoard</div>
     );
   }
 });
@@ -25,7 +25,7 @@ var KPMBoard = React.createClass({
 
   render: function() {
     return (
-      <p>KPMBoard</p>
+      <div>KPMBoard</div>
     );
   }
 });
@@ -34,12 +34,12 @@ var AvgBoard = React.createClass({
 
   render: function() {
     return (
-      <p>AvgBoard</p>
+      <div>AvgBoard</div>
     );
   }
 });
 
 React.render(
   <Leaderboards />,
-  document.getElementById('tables')
+  document.getElementById('content')
 );

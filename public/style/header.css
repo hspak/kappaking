@@ -1,0 +1,44 @@
+body {
+  background-color: #6744a7;
+}
+
+a {
+  text-decoration: none;
+}
+
+.header {
+  font-family: "Lato", sans-serif;
+  padding-left: 10px;
+  padding-top: 5px;
+}
+
+.face {
+  height: 80px;
+  float: left;
+}
+
+.face > img {
+  height: 80px;
+  display: inline-block;
+}
+
+.title {
+   display: inline-block;
+   font-size: 200%;
+   color: #000;
+   font-weight: bold;
+   transform: translateY(-70%);
+}
+
+.links {
+  color: #444;
+  margin-top: 31px;
+  font-size: 110%;
+  float: right;
+  text-align: right;
+}
+
+.links > a {
+  color: #b3a1d3;
+  margin-right: 30px;
+}
