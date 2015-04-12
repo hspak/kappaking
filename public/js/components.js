@@ -1,19 +1,5 @@
 /** @jsx React.DOM */
 
-function convertMinutes(minutes) {
-  if (minutes == 0) {
-    return "now";
-  } else if (minutes < 60) {
-    return minutes + "m ago";
-  } else if (minutes < 1440) { // 60*24
-    return Math.round(minutes/60) + "h " + (minutes%60) + "m ago";
-  } else if (minutes < 10080) { // 60*24*7
-    return Math.round(minutes/1440) + "d ago";
-  } else {
-    return Math.round(minutes/10080) + "w ago";
-  }
-}
-
 var ChannelTable = React.createClass({
   mixins: [SetIntervalMixin],
   getInitialState: function() {
@@ -73,14 +59,27 @@ var ChannelTable = React.createClass({
       stream.display_name = i + ' ' + stream.display_name;
       i += 1;
     });
-    return(
-      React.createElement("div", {className: "cells"},
-        firstCell,
-        React.createElement("div", {className: "bar"}),
-        React.createElement("div", {className: "channelTable"},
-          cells
-        )
-      )
+    return (
+      <div>
+        <Header />
+        <div className="cells">
+          {firstCell}
+          <div className="bar"></div>
+          <div className="channelTable">
+            {cells}
+          </div>
+        </div>
+      </div>
+    );
+  }
+});
+
+var Header = React.createClass({
+  render: function() {
+    return (
+      <div>
+        Header
+      </div>
     );
   }
 });
