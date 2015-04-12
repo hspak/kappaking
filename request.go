@@ -3,10 +3,12 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type Streams struct {
@@ -72,6 +74,28 @@ type Streams struct {
 	// }}}
 }
 
+type MostKappa struct {
+	Name   string `json:"name"`
+	Kappas int    `json:"kappas"`
+}
+
+type HighestKPM struct {
+	Name string    `json:"name"`
+	Kpm  int       `json:"kpm"`
+	Date time.Time `json:"kpm_date"`
+}
+
+type HighestAvg struct {
+	Name string  `json:"name"`
+	Avg  float64 `json:"avg"`
+}
+
+type Leaders struct {
+	MostKappa  []MostKappa  `json:"most_kappa"`
+	HighestKPM []HighestKPM `json:"highest_kpm"`
+	HighestAvg []HighestAvg `json:"highest_avg"`
+}
+
 var LiveStreams [25]string
 var PrevStreams [25]string
 
@@ -131,6 +155,24 @@ func returnJSON(db *DB) string {
 	if err != nil {
 		// TODO: do more
 		return "error"
+	}
+	return string(out)
+}
+
+func returnLeadersJSON(db *DB) string {
+	kappa, avg, err := db.queryKappa()
+	if err != nil {
+		return "query kappa error"
+	}
+	kpm, err := db.queryHighestKPM()
+	if err != nil {
+		return "highest kpm error"
+	}
+	data := &Leaders{MostKappa: kappa, HighestKPM: kpm, HighestAvg: avg}
+	fmt.Println(data)
+	out, err := JSONMarshal(data, true)
+	if err != nil {
+		return "json marshal error"
 	}
 	return string(out)
 }

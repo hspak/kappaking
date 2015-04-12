@@ -18,6 +18,8 @@ func main() {
 	defer db.conn.Close()
 
 	db.StartUpdateLoop()
-	go serveWeb(db)
-	launchBot(db)
+	serveWeb(db)
+	// launchBot(db)
+	for {
+	}
 }

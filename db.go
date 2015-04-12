@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 
@@ -312,4 +313,53 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 		}
 	}
 	return nil
+}
+
+func (db *DB) queryKappa() ([]MostKappa, []HighestAvg, error) {
+	query := `SELECT name, kappa, minutes FROM streams ORDER BY kappa DESC LIMIT 20;`
+	rows, err := db.conn.Query(query)
+	if err != nil {
+		return nil, nil, err
+	}
+	kappas := make([]MostKappa, 20)
+	avg := make([]HighestAvg, 20)
+	minutes := make([]int, 20)
+	i := 0
+	for rows.Next() {
+		err := rows.Scan(&kappas[i].Name, &kappas[i].Kappas, &minutes[i])
+		avg[i].Name = kappas[i].Name
+		i++
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+	i = 0
+	for i < 20 {
+		if minutes[i] > 0 {
+			avg[i].Avg = float64(kappas[i].Kappas) / float64(minutes[i])
+		} else {
+			avg[i].Avg = 0
+		}
+		i++
+	}
+	return kappas, avg, nil
+}
+
+func (db *DB) queryHighestKPM() ([]HighestKPM, error) {
+	query := `SELECT name, maxkpm, kpmdate FROM streams ORDER BY maxkpm DESC LIMIT 20;`
+	rows, err := db.conn.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	maxkpm := make([]HighestKPM, 20)
+	i := 0
+	for rows.Next() {
+		err := rows.Scan(&maxkpm[i].Name, &maxkpm[i].Kpm, &maxkpm[i].Date)
+		i++
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+	}
+	return maxkpm, nil
 }
