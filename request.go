@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -160,7 +159,7 @@ func returnJSON(db *DB) string {
 }
 
 func returnLeadersJSON(db *DB) string {
-	kappa, avg, err := db.queryKappa()
+	kappa, err := db.queryKappa()
 	if err != nil {
 		return "query kappa error"
 	}
@@ -168,8 +167,11 @@ func returnLeadersJSON(db *DB) string {
 	if err != nil {
 		return "highest kpm error"
 	}
+	avg, err := db.queryHighestAvg()
+	if err != nil {
+		return "highest avg error"
+	}
 	data := &Leaders{MostKappa: kappa, HighestKPM: kpm, HighestAvg: avg}
-	fmt.Println(data)
 	out, err := JSONMarshal(data, true)
 	if err != nil {
 		return "json marshal error"

@@ -315,34 +315,22 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 	return nil
 }
 
-func (db *DB) queryKappa() ([]MostKappa, []HighestAvg, error) {
-	query := `SELECT name, kappa, minutes FROM streams ORDER BY kappa DESC LIMIT 20;`
+func (db *DB) queryKappa() ([]MostKappa, error) {
+	query := `SELECT name, kappa FROM streams ORDER BY kappa DESC LIMIT 20;`
 	rows, err := db.conn.Query(query)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	kappas := make([]MostKappa, 20)
-	avg := make([]HighestAvg, 20)
-	minutes := make([]int, 20)
 	i := 0
 	for rows.Next() {
-		err := rows.Scan(&kappas[i].Name, &kappas[i].Kappas, &minutes[i])
-		avg[i].Name = kappas[i].Name
+		err := rows.Scan(&kappas[i].Name, &kappas[i].Kappas)
 		i++
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 	}
-	i = 0
-	for i < 20 {
-		if minutes[i] > 0 {
-			avg[i].Avg = float64(kappas[i].Kappas) / float64(minutes[i])
-		} else {
-			avg[i].Avg = 0
-		}
-		i++
-	}
-	return kappas, avg, nil
+	return kappas, nil
 }
 
 func (db *DB) queryHighestKPM() ([]HighestKPM, error) {
@@ -362,4 +350,26 @@ func (db *DB) queryHighestKPM() ([]HighestKPM, error) {
 		}
 	}
 	return maxkpm, nil
+}
+
+func (db *DB) queryHighestAvg() ([]HighestAvg, error) {
+	query := `SELECT name, kappa, minutes FROM streams ORDER BY COALESCE(kappa/NULLIF(minutes,0),0) DESC LIMIT 20;`
+	rows, err := db.conn.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	avg := make([]HighestAvg, 20)
+	min := make([]int, 20)
+	kappa := make([]int, 20)
+	i := 0
+	for rows.Next() {
+		err := rows.Scan(&avg[i].Name, &kappa[i], &min[i])
+		avg[i].Avg = float64(kappa[i]) / float64(min[i])
+		i++
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+	}
+	return avg, nil
 }
