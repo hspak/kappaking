@@ -99,7 +99,8 @@ var AvgBoard = React.createClass({
       this.props.avg.forEach(function(avg) {
         rows.push(<tr key={avg.name}>
           <td>{avg.name}</td>
-          <td>{avg.avg.toFixed(2)}</td></tr>);
+          <td>{avg.avg.toFixed(2)}</td>
+          <td>{avg.minutes}</td></tr>);
       });
     }
     return (
@@ -109,6 +110,7 @@ var AvgBoard = React.createClass({
           <thead>
             <td>Streamer</td>
             <td>Average</td>
+            <td>Minutes</td>
           </thead>
           {rows}
         </table>

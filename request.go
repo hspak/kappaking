@@ -86,6 +86,7 @@ type HighestKPM struct {
 
 type HighestAvg struct {
 	Name string  `json:"name"`
+	Min  int     `json:"minutes"`
 	Avg  float64 `json:"avg"`
 }
 
