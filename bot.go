@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/thoj/go-ircevent"
+	"github.com/hspak/go-ircevent"
 )
 
 type KappaData struct {
