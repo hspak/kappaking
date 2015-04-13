@@ -85,7 +85,7 @@ a {
   height: 50vh;
   display: inline-block;
   background-color: #6744a7;
-  /* min-height: 200px; */
+  min-height: 254px;
 }
 
 .channelTable {

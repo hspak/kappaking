@@ -1,9 +1,14 @@
+html,body {
+  margin: 0;
+  padding: 0;
+}
+
 .container {
   width: 100%;
   font-family: 'Lato', sans-serif;
   font-size: 135%;
   line-height: 125%;
-  margin-top: 50px;
+  margin-top: 10px;
   display: inline-block;
 }
 
@@ -16,10 +21,11 @@
 }
 
 .question {
+  color: #332253;
 }
 
 .answer {
-  color: #b3a1d3;
+  color: #a38eca;
 }
 
 .answer > img {

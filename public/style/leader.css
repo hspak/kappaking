@@ -11,15 +11,44 @@
   width: 200px;
 }
 
-.master-table {
-  margin-top: 60px;
-  display: table;
-  position: absolute;
-  height: 80%;
-  width: 100%;
+.kappa-table {
+  display: inline-block;
+  margin-right: 25px;
 }
 
-.slave-table {
-  display: table-cell;
-  vertical-align: middle;
+.table-name {
+  font-weight: bold;
+  padding: 5px;
+}
+
+.tables {
+  width: 950px;
+  margin: 0 auto;
+  font-size: 110%;
+  padding-bottom: 50px;
+}
+
+td {
+  min-width: 3rem;
+  padding: 0.3rem;
+}
+
+table,td,tr {
+  border: 1px solid black;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+tr:nth-child(even) {
+  background-color: #a38eca;
+}
+
+tr:nth-child(odd) {
+  background-color: #8569b8;
+}
+
+thead {
+  font-weight: bold;
 }

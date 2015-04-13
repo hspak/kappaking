@@ -2,13 +2,16 @@
 
 var ChannelTable = React.createClass({
   mixins: [SetIntervalMixin],
+
   getInitialState: function() {
     return {streams: []};
   },
+
   componentDidMount: function() {
     this.dataUpdate();
     this.setInterval(this.dataUpdate, 5000);
   },
+
   dataUpdate: function() {
     var xhr = new XMLHttpRequest();
     xhr.open('get', document.URL + "api/get/data", true);
@@ -18,6 +21,7 @@ var ChannelTable = React.createClass({
     }.bind(this);
     xhr.send();
   },
+
   render: function() {
     var cells = [];
     var first = true;
