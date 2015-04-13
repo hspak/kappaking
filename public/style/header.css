@@ -28,6 +28,10 @@ a {
    font-size: 200%;
    color: #000;
    font-weight: bold;
+   -webkit-transform: translateY(-70%);
+   -moz-transform: translateY(-70%);
+   -ms-transform: translateY(-70%);
+   -o-transform: translateY(-70%);
    transform: translateY(-70%);
 }
 
