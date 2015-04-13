@@ -133,7 +133,7 @@ func getTopStreams(first bool) *Streams {
 }
 
 func JSONMarshal(v interface{}, safeEncoding bool) ([]byte, error) {
-	b, err := json.Marshal(v)
+	b, err := json.MarshalIndent(v, "", "  ")
 
 	if safeEncoding {
 		b = bytes.Replace(b, []byte("\\u003c"), []byte("<"), -1)
