@@ -171,7 +171,7 @@ func (db *DB) Query() ([]Data, error) {
 		}
 		db.currData[i].MaxKpmDate = date.Format(time.RFC3339)
 
-		db.cache.Store.DateKPM[db.currData[i].DisplayName] = db.currData[i].MaxKpmDate
+		db.cache.Store.DateKPM[db.currData[i].DisplayName] = date
 		db.cache.Store.MaxKPM[db.currData[i].DisplayName] = db.currData[i].MaxKpm
 		db.cache.Store.Minutes[db.currData[i].DisplayName] = db.currData[i].Minutes
 		db.cache.Store.TotalKappa[db.currData[i].DisplayName] = db.currData[i].Kappa
