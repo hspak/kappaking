@@ -229,21 +229,21 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 
 		_, err = tx.Exec(`
 			CREATE TEMPORARY TABLE newvals(
-				name 	VARCHAR(255),
-				viewers INTEGER,
-				game	VARCHAR(255),
-				logo	VARCHAR(255),
-				maxkpmt INTEGER,
-				kappat  INTEGER,
-				minutes INTEGER,
-				kpmdate TIMESTAMP);`)
+				name 	 VARCHAR(255),
+				viewers  INTEGER,
+				game	 VARCHAR(255),
+				logo	 VARCHAR(255),
+				maxkpmt  INTEGER,
+				kappat   INTEGER,
+				minutest INTEGER,
+				kpmdate  TIMESTAMP);`)
 		if err != nil {
 			return err
 		}
 
 		_, err = tx.Exec(`
 			INSERT INTO
-				newvals(name, viewers, game, logo, maxkpmt, kappat, minutes, kpmdate)
+				newvals(name, viewers, game, logo, maxkpmt, kappat, minutest, kpmdate)
 				VALUES($1, $2, $3, $4, $5, $6, $7, $8);`,
 			streamName, stream.Viewers, stream.Game, stream.Channel.Logo,
 			db.cache.Store.MaxKPM[streamName],
@@ -277,10 +277,15 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 					viewers = newvals.viewers,
 					game    = newvals.game,
 					logo    = newvals.logo,
-					minutes = newvals.minutes,
 					kpmdate = newvals.kpmdate
 				FROM newvals
 				WHERE newvals.name = streams.name;
+			`)
+			_, err = tx.Exec(`
+				UPDATE streams
+				SET minutes = newvals.minutest
+				FROM newvals
+				WHERE newvals.name = streams.name AND newvals.minutest > minutes;
 			`)
 			_, err = tx.Exec(`
 				UPDATE streams
@@ -308,7 +313,7 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 				newvals.game,
 				newvals.logo,
 				newvals.maxkpmt,
-				newvals.minutes,
+				newvals.minutest,
 				newvals.kappat,
 				$1
 			FROM newvals
