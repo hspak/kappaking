@@ -79,15 +79,37 @@ func (db *DB) updateLoop() error {
 			if topStreams == nil {
 				continue
 			}
-			db.cache.Fresh = false
+
 			err := db.Insert(topStreams, false)
 			if err != nil {
 				log.Fatal(err)
 			}
+			db.cache.Fresh = false
 			db.addChanList()
 		}
 	}()
 	return nil
+}
+
+func (db *DB) addChanList() {
+	// part dead channels
+	dead := true
+	for _, prev := range PrevStreams {
+		for _, curr := range LiveStreams {
+			// still alive
+			if prev == curr {
+				dead = false
+				break
+			}
+		}
+		if dead {
+			db.streamList <- &BotAction{Channel: prev, Join: false}
+		}
+		dead = true
+	}
+	for _, curr := range LiveStreams {
+		db.streamList <- &BotAction{Channel: curr, Join: true}
+	}
 }
 
 func (db *DB) SetupCache(name string) error {
@@ -170,36 +192,10 @@ func (db *DB) Query() ([]Data, error) {
 			return nil, err
 		}
 		db.currData[i].MaxKpmDate = date.Format(time.RFC3339)
-
-		db.cache.Store.DateKPM[db.currData[i].DisplayName] = date
-		db.cache.Store.MaxKPM[db.currData[i].DisplayName] = db.currData[i].MaxKpm
-		db.cache.Store.Minutes[db.currData[i].DisplayName] = db.currData[i].Minutes
-		db.cache.Store.TotalKappa[db.currData[i].DisplayName] = db.currData[i].Kappa
 		i++
 	}
 	db.cache.Fresh = true
 	return db.currData, nil
-}
-
-func (db *DB) addChanList() {
-	// part dead channels
-	dead := true
-	for _, prev := range PrevStreams {
-		for _, curr := range LiveStreams {
-			// still alive
-			if prev == curr {
-				dead = false
-				break
-			}
-		}
-		if dead {
-			db.streamList <- &BotAction{Channel: prev, Join: false}
-		}
-		dead = true
-	}
-	for _, curr := range LiveStreams {
-		db.streamList <- &BotAction{Channel: curr, Join: true}
-	}
 }
 
 func (db *DB) Insert(streams *Streams, first bool) error {
@@ -317,6 +313,7 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 	return nil
 }
 
+// {{{ Leaderboards
 func (db *DB) queryKappa() ([]MostKappa, error) {
 	query := `SELECT name, kappa FROM streams ORDER BY kappa DESC LIMIT 20;`
 	rows, err := db.conn.Query(query)
@@ -377,3 +374,5 @@ func (db *DB) queryHighestAvg() ([]HighestAvg, error) {
 	}
 	return avg, nil
 }
+
+// }}}
