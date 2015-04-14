@@ -68,7 +68,6 @@ var KPMBoard = React.createClass({
   render: function() {
     var rows = [];
     if (Array.isArray(this.props.kpm)) {
-      console.log(this.props.kpm);
       this.props.kpm.forEach(function(kpm) {
         rows.push(<tr key={kpm.name}>
           <td>{kpm.name}</td>

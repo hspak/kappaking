@@ -321,6 +321,7 @@ func (db *DB) queryKappa() ([]MostKappa, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	kappas := make([]MostKappa, 20)
 	i := 0
 	for rows.Next() {
@@ -339,6 +340,7 @@ func (db *DB) queryHighestKPM() ([]HighestKPM, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	maxkpm := make([]HighestKPM, 20)
 	i := 0
 	for rows.Next() {
@@ -358,6 +360,7 @@ func (db *DB) queryHighestAvg() ([]HighestAvg, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	avg := make([]HighestAvg, 20)
 	kappa := make([]int, 20)
 	i := 0
