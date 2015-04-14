@@ -202,6 +202,12 @@ func (db *DB) Query() ([]Data, error) {
 			return nil, err
 		}
 		db.currData[i].MaxKpmDate = date.Format(time.RFC3339)
+
+		// The new cache needs to be updated
+		db.cache.Store.DateKPM[db.currData[i].DisplayName] = date
+		db.cache.Store.MaxKPM[db.currData[i].DisplayName] = db.currData[i].MaxKpm
+		db.cache.Store.Minutes[db.currData[i].DisplayName] = db.currData[i].Minutes
+		db.cache.Store.TotalKappa[db.currData[i].DisplayName] = db.currData[i].Kappa
 		i++
 	}
 	db.cache.Fresh = true
