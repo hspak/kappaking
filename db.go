@@ -49,6 +49,11 @@ func NewDB() (*DB, error) {
 	}, nil
 }
 
+// 1. Pulls initial streamer list from twitch
+// 2. Fill cache if previous data exists
+// 3. Inserts current data into database
+// 4. Add channels to join for the bot
+// 5. Start loop
 func (db *DB) StartUpdateLoop() {
 	topStreams := getTopStreams(true)
 	if topStreams == nil {
@@ -71,6 +76,11 @@ func (db *DB) StartUpdateLoop() {
 	db.updateLoop()
 }
 
+// Loop
+//   1. Grabs new list of streamers
+//   2. Inserts current cache into DB
+//   3. Marks current cache dirty
+//   4. Marks channels to join/part
 func (db *DB) updateLoop() error {
 	ticker := time.NewTicker(time.Minute)
 	go func() {
