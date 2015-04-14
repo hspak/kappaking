@@ -55,8 +55,7 @@ func (db *DB) StartUpdateLoop() {
 		log.Fatal("first response from twitch cannot be nil")
 	}
 	for _, stream := range topStreams.Stream {
-		name := stream.Channel.DisplayName
-		err := db.SetupCache(name)
+		err := db.SetupCache(stream.Channel.DisplayName)
 		if err != nil {
 			log.Println(err)
 		}
@@ -73,7 +72,6 @@ func (db *DB) StartUpdateLoop() {
 }
 
 func (db *DB) updateLoop() error {
-	// poll twitch every 5 minute
 	ticker := time.NewTicker(time.Minute)
 	go func() {
 		for _ = range ticker.C {
@@ -81,13 +79,12 @@ func (db *DB) updateLoop() error {
 			if topStreams == nil {
 				continue
 			}
-
+			db.cache.Fresh = false
 			err := db.Insert(topStreams, false)
 			if err != nil {
 				log.Fatal(err)
 			}
 			db.addChanList()
-			db.cache.Fresh = false
 		}
 	}()
 	return nil
@@ -173,6 +170,11 @@ func (db *DB) Query() ([]Data, error) {
 			return nil, err
 		}
 		db.currData[i].MaxKpmDate = date.Format(time.RFC3339)
+
+		db.cache.Store.DateKPM[db.currData[i].DisplayName] = db.currData[i].MaxKpmDate
+		db.cache.Store.MaxKPM[db.currData[i].DisplayName] = db.currData[i].MaxKpm
+		db.cache.Store.Minutes[db.currData[i].DisplayName] = db.currData[i].Minutes
+		db.cache.Store.TotalKappa[db.currData[i].DisplayName] = db.currData[i].Kappa
 		i++
 	}
 	db.cache.Fresh = true
