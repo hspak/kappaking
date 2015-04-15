@@ -36,7 +36,6 @@ var ChannelTable = React.createClass({
     this.state.streams.forEach(function(stream) {
       var since = Math.round((Date.now() - Date.parse(stream.maxkpm_date))/60000);
       var sinceConvert = convertMinutes(since);
-      console.log(sinceConvert);
       if (stream.logo == "") {
         stream.logo = "http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_150x150.png";
       }
