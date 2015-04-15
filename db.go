@@ -236,14 +236,14 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 				maxkpmt  INTEGER,
 				kappat   INTEGER,
 				minutest INTEGER,
-				kpmdate  TIMESTAMP);`)
+				kpmdatet TIMESTAMP);`)
 		if err != nil {
 			return err
 		}
 
 		_, err = tx.Exec(`
 			INSERT INTO
-				newvals(name, viewers, game, logo, maxkpmt, kappat, minutest, kpmdate)
+				newvals(name, viewers, game, logo, maxkpmt, kappat, minutest, kpmdatet)
 				VALUES($1, $2, $3, $4, $5, $6, $7, $8);`,
 			streamName, stream.Viewers, stream.Game, stream.Channel.Logo,
 			db.cache.Store.MaxKPM[streamName],
@@ -277,7 +277,6 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 					viewers = newvals.viewers,
 					game    = newvals.game,
 					logo    = newvals.logo,
-					kpmdate = newvals.kpmdate
 				FROM newvals
 				WHERE newvals.name = streams.name;
 			`)
@@ -298,6 +297,18 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 				SET kappa = newvals.kappat
 				FROM newvals
 				WHERE newvals.name = streams.name AND newvals.kappat > kappa;
+			`)
+			_, err = tx.Exec(`
+				UPDATE streams
+				SET kappa = newvals.kappat
+				FROM newvals
+				WHERE newvals.name = streams.name AND newvals.kappat > kappa;
+			`)
+			_, err = tx.Exec(`
+				UPDATE streams
+				SET kpmdate = newvals.kpmdatet
+				FROM newvals
+				WHERE newvals.name = streams.name AND newvals.kpmdatet > kpmdate;
 			`)
 		}
 		if err != nil {
