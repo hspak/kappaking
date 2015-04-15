@@ -112,8 +112,11 @@ func (b *Bot) trackKappas() {
 func (b *Bot) trackStatus() {
 	for {
 		text := []byte("live\n")
-		if !b.conn.Connected() {
+		if b.conn.Disconnected() {
 			text = []byte("dead\n")
+			log.Println("Status: Dead")
+		} else {
+			log.Println("Status: Live")
 		}
 		err := ioutil.WriteFile("status", text, 0644)
 		if err != nil {
