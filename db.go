@@ -300,12 +300,6 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 			`)
 			_, err = tx.Exec(`
 				UPDATE streams
-				SET kappa = newvals.kappat
-				FROM newvals
-				WHERE newvals.name = streams.name AND newvals.kappat > kappa;
-			`)
-			_, err = tx.Exec(`
-				UPDATE streams
 				SET kpmdate = newvals.kpmdatet
 				FROM newvals
 				WHERE newvals.name = streams.name AND newvals.kpmdatet > kpmdate;
