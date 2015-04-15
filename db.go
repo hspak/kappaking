@@ -288,7 +288,7 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 			`)
 			_, err = tx.Exec(`
 				UPDATE streams
-				SET maxkpm = newvals.maxkpmt
+				SET maxkpm = newvals.maxkpmt, kpmdate = newvals.kpmdatet
 				FROM newvals
 				WHERE newvals.name = streams.name AND newvals.maxkpmt > maxkpm;
 			`)
@@ -297,12 +297,6 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 				SET kappa = newvals.kappat
 				FROM newvals
 				WHERE newvals.name = streams.name AND newvals.kappat > kappa;
-			`)
-			_, err = tx.Exec(`
-				UPDATE streams
-				SET kpmdate = newvals.kpmdatet
-				FROM newvals
-				WHERE newvals.name = streams.name AND newvals.kpmdatet > '0001-01-01 00:00:00';
 			`)
 		}
 		if err != nil {
