@@ -75,6 +75,13 @@ a {
   display: inline-block;
 }
 
+.deadtime {
+  font-size: 75%;
+  text-align: center;
+  margin-left: -209px;
+  color: #b3a1d3;
+}
+
 .cells {
   width: 100%;
   text-align: center;

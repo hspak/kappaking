@@ -73,6 +73,23 @@ type Streams struct {
 	// }}}
 }
 
+type Data struct {
+	DisplayName string `json:"display_name"`
+	Game        string `json:"game"`
+	Viewers     int    `json:"viewers"`
+	Logo        string `json:"logo"`
+	CurrKpm     int    `json:"currkpm"`
+	MaxKpm      int    `json:"maxkpm"`
+	MaxKpmDate  string `json:"maxkpm_date"`
+	Kappa       int    `json:"kappa"`
+	Minutes     int    `json:"minutes"`
+}
+
+type Wrapper struct {
+	Streams  []Data
+	DownTime int `json:downtime`
+}
+
 type MostKappa struct {
 	Name   string `json:"name"`
 	Kappas int    `json:"kappas"`
@@ -150,7 +167,7 @@ func returnJSON(db *DB) string {
 		// TODO: do more
 		return err.Error()
 	}
-	wrapper := &Wrapper{Streams: d}
+	wrapper := &Wrapper{Streams: d, DownTime: db.downtime}
 	out, err := JSONMarshal(&wrapper, true)
 	if err != nil {
 		// TODO: do more

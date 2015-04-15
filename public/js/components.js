@@ -4,7 +4,7 @@ var ChannelTable = React.createClass({
   mixins: [SetIntervalMixin],
 
   getInitialState: function() {
-    return {streams: []};
+    return {streams: [], downtime: 0};
   },
 
   componentDidMount: function() {
@@ -18,6 +18,7 @@ var ChannelTable = React.createClass({
     xhr.onload = function() {
       var data = JSON.parse(xhr.responseText);
       this.setState({ streams: data.Streams });
+      this.setState({ downtime: data.DownTime });
     }.bind(this);
     xhr.send();
   },
@@ -67,6 +68,7 @@ var ChannelTable = React.createClass({
     return (
       <div>
         <Header />
+        <DownTime time={this.state.downtime}/>
         <div className="cells">
           {firstCell}
           <div className="bar"></div>
@@ -79,6 +81,19 @@ var ChannelTable = React.createClass({
   }
 });
 
+var DownTime = React.createClass({
+  render: function() {
+    if (this.props.time > 0) {
+      return (
+        <div className="deadtime">
+          Kappa Counter has been dead for: {this.props.time}s
+        </div>
+      );
+    } else {
+      return <div></div>;
+    }
+  }
+});
 
 var ChannelCell = React.createClass({
   render: function() {

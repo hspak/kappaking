@@ -126,12 +126,24 @@ func (b *Bot) trackStatus() {
 	}
 }
 
+func (b *Bot) trackDowntime() {
+	for {
+		if b.conn.Disconnected() {
+			b.db.downtime += 1
+		} else {
+			b.db.downtime = 0
+		}
+		time.Sleep(time.Second)
+	}
+}
+
 func (b *Bot) start() {
 	b.connect("kappakingbot", "kappakingbot", "irc.twitch.tv:6667")
 	go b.countMinutes()
 	go b.joinChannels()
 	go b.updateCounts()
 	go b.trackStatus()
+	go b.trackDowntime()
 	b.trackKappas()
 }
 

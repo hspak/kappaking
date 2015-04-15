@@ -20,6 +20,7 @@ type DB struct {
 	cache      *Cache
 	currData   []Data
 	ready      bool
+	downtime   int
 }
 
 func NewDB() (*DB, error) {
