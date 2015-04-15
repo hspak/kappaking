@@ -109,11 +109,26 @@ func (b *Bot) trackKappas() {
 	})
 }
 
+func (b *Bot) trackStatus() {
+	for {
+		text := []byte("live\n")
+		if !b.conn.Connected() {
+			text = []byte("dead\n")
+		}
+		err := ioutil.WriteFile("status", text, 0644)
+		if err != nil {
+			log.Println("could not write status")
+		}
+		time.Sleep(time.Hour)
+	}
+}
+
 func (b *Bot) start() {
 	b.connect("kappakingbot", "kappakingbot", "irc.twitch.tv:6667")
 	go b.countMinutes()
 	go b.joinChannels()
 	go b.updateCounts()
+	go b.trackStatus()
 	b.trackKappas()
 }
 
