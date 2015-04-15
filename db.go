@@ -302,7 +302,7 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 				UPDATE streams
 				SET kpmdate = newvals.kpmdatet
 				FROM newvals
-				WHERE newvals.name = streams.name AND newvals.kpmdatet > kpmdate;
+				WHERE newvals.name = streams.name AND newvals.kpmdatet > '0001-01-01 00:00:00';
 			`)
 		}
 		if err != nil {
