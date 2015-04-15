@@ -276,7 +276,7 @@ func (db *DB) Insert(streams *Streams, first bool) error {
 				SET
 					viewers = newvals.viewers,
 					game    = newvals.game,
-					logo    = newvals.logo,
+					logo    = newvals.logo
 				FROM newvals
 				WHERE newvals.name = streams.name;
 			`)
