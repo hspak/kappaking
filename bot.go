@@ -119,7 +119,7 @@ func (b *Bot) trackStatus() {
 		if err != nil {
 			log.Println("could not write status")
 		}
-		time.Sleep(time.Hour)
+		time.Sleep(time.Minute * 10)
 	}
 }
 
