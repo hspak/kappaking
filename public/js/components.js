@@ -17,8 +17,7 @@ var ChannelTable = React.createClass({
     xhr.open('get', document.URL + "api/get/data", true);
     xhr.onload = function() {
       var data = JSON.parse(xhr.responseText);
-      this.setState({ streams: data.Streams });
-      this.setState({ downtime: data.DownTime });
+      this.setState({ streams: data.Streams, downtime: data.DownTime });
     }.bind(this);
     xhr.send();
   },
@@ -37,6 +36,7 @@ var ChannelTable = React.createClass({
     this.state.streams.forEach(function(stream) {
       var since = Math.round((Date.now() - Date.parse(stream.maxkpm_date))/60000);
       var sinceConvert = convertMinutes(since);
+      console.log(sinceConvert);
       if (stream.logo == "") {
         stream.logo = "http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_150x150.png";
       }
