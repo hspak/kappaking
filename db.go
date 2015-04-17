@@ -386,7 +386,7 @@ func (db *DB) queryHighestAvg() ([]HighestAvg, error) {
 	kappa := make([]int, 20)
 	i := 0
 	for rows.Next() {
-		err := rows.Scan(&avg[i].Name, &kappa[i], &minutes)
+		err := rows.Scan(&avg[i].Name, &kappa[i], &minutes[i])
 		avg[i].Avg = float64(kappa[i]) / float64(minutes[i])
 		i++
 		if err != nil {
