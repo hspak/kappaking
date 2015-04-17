@@ -46,7 +46,8 @@ var KappaBoard = React.createClass({
       this.props.kappas.forEach(function(kappa) {
         rows.push(<tr key={kappa.name}>
           <td>{kappa.name}</td>
-          <td>{kappa.kappas}</td></tr>);
+          <td>{kappa.kappas}</td>
+          <td>{kappa.minutes}</td></tr>);
       });
     }
     return (
@@ -56,6 +57,7 @@ var KappaBoard = React.createClass({
           <thead>
             <td>Streamer</td>
             <td>Kappas</td>
+            <td>Minutes</td>
           </thead>
           {rows}
         </table>
@@ -98,18 +100,16 @@ var AvgBoard = React.createClass({
       this.props.avg.forEach(function(avg) {
         rows.push(<tr key={avg.name}>
           <td>{avg.name}</td>
-          <td>{avg.avg.toFixed(2)}</td>
-          <td>{avg.minutes}</td></tr>);
+          <td>{avg.avg.toFixed(2)}</td></tr>);
       });
     }
     return (
       <div className="kappa-table">
-        <div className="table-name">Highest Average KPM</div>
+        <div className="table-name">Highest Average KPM (>100 Minutes)</div>
         <table>
           <thead>
             <td>Streamer</td>
             <td>Average</td>
-            <td>Minutes</td>
           </thead>
           {rows}
         </table>

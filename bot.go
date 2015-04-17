@@ -47,6 +47,7 @@ func (b *Bot) setPassword() {
 }
 
 func (b *Bot) joinChannels() {
+	log.Println("Bot: joining/parting fresh channels")
 	for action := range b.db.streamList {
 		stream := strings.ToLower(action.Channel)
 		_, exist := b.joinedChannels[stream]
@@ -54,11 +55,9 @@ func (b *Bot) joinChannels() {
 		// so that it can still join properly after disconnects
 		if (action.Join && !exist) || (action.Join) {
 			b.joinedChannels[stream] = true
-			log.Println("Bot: joining", stream)
 			b.conn.Join("#" + stream)
 		} else if !action.Join {
 			b.joinedChannels[stream] = false
-			log.Println("Bot: parting", stream)
 			b.conn.Part("#" + stream)
 		}
 

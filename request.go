@@ -91,8 +91,9 @@ type Wrapper struct {
 }
 
 type MostKappa struct {
-	Name   string `json:"name"`
-	Kappas int    `json:"kappas"`
+	Name    string `json:"name"`
+	Kappas  int    `json:"kappas"`
+	Minutes int    `json:"minutes"`
 }
 
 type HighestKPM struct {
@@ -103,7 +104,6 @@ type HighestKPM struct {
 
 type HighestAvg struct {
 	Name string  `json:"name"`
-	Min  int     `json:"minutes"`
 	Avg  float64 `json:"avg"`
 }
 
