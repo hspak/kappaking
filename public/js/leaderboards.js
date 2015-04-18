@@ -18,7 +18,7 @@ var Leaderboards = React.createClass({
   render: function() {
     if (Array.isArray(this.state.leaders.highest_avg)) {
       this.state.leaders.highest_avg.sort(function(a, b) {
-        return parseInt(b.avg) - parseInt(a.avg);
+        return parseFloat(b.avg) - parseFloat(a.avg);
       });
 
       this.state.leaders.highest_kpm.forEach(function(kpm) {
