@@ -47,7 +47,7 @@ var KappaBoard = React.createClass({
         rows.push(<tr key={kappa.name}>
           <td>{kappa.name}</td>
           <td>{kappa.kappas}</td>
-          <td>{convertMinutes(kappa.minutes), false}</td></tr>);
+          <td>{kappa.minutes}</td></tr>);
       });
     }
     return (
