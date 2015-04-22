@@ -1,14 +1,19 @@
-function convertMinutes(minutes) {
+function convertMinutes(minutes, ago) {
+  var ret = "";
   if (minutes == 0) {
-    return "now";
+    ret = "now";
   } else if (minutes < 60) {
-    return minutes + "m ago";
+    ret = minutes + "m";
   } else if (minutes < 1440) { // 60*24
-    return Math.round(minutes/60) + "h " + (minutes%60) + "m ago";
+    ret = Math.round(minutes/60) + "h " + (minutes%60) + "m";
   } else if (minutes < 10080) { // 60*24*7
-    return Math.round(minutes/1440) + "d ago";
+    ret = Math.round(minutes/1440) + "d";
   } else {
-    return Math.round(minutes/10080) + "w ago";
+    ret = Math.round(minutes/10080) + "w";
   }
-}
 
+  if (ago && minutes >= 60) {
+    ret += " ago";
+  }
+  return ret;
+}

@@ -47,7 +47,7 @@ var KappaBoard = React.createClass({
         rows.push(<tr key={kappa.name}>
           <td>{kappa.name}</td>
           <td>{kappa.kappas}</td>
-          <td>{kappa.minutes}</td></tr>);
+          <td>{convertMinutes(kappa.minutes), false}</td></tr>);
       });
     }
     return (
@@ -57,7 +57,7 @@ var KappaBoard = React.createClass({
           <thead>
             <td>Streamer</td>
             <td>Kappas</td>
-            <td>Minutes</td>
+            <td>Recorded</td>
           </thead>
           {rows}
         </table>
