@@ -57,7 +57,7 @@ var KappaBoard = React.createClass({
           <thead>
             <td>Streamer</td>
             <td>Kappas</td>
-            <td>Recorded</td>
+            <td>Minutes</td>
           </thead>
           {rows}
         </table>
